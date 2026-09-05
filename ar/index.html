@@ -56,7 +56,17 @@
 <body>
 
 <div class="loading-screen" id="loadingScreen" role="status" aria-label="جارٍ التحميل">
-  <img src="../assets/logo/icon-source.webp" alt="" width="84" height="84">
+  <div class="loading-smoke" aria-hidden="true">
+    <span class="smoke smoke-fahes"></span>
+    <span class="smoke smoke-khota"></span>
+    <span class="smoke smoke-rasheed"></span>
+    <span class="smoke smoke-sada"></span>
+    <span class="smoke smoke-kholasa"></span>
+  </div>
+  <div class="loading-mark">
+    <img class="loading-logo" src="../assets/logo/icon-source.webp" alt="" width="96" height="96">
+    <span class="loading-name">براق</span>
+  </div>
   <div class="loading-bar"></div>
 </div>
 
@@ -65,7 +75,7 @@
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="#top" aria-label="براق">
-      <img class="brand-logo" src="../assets/logo/icon-only.webp" alt="" width="34" height="34">
+      <img class="brand-logo" src="../assets/logo/icon-only.webp" alt="" width="67" height="34">
       <span class="brand-name">براق</span>
     </a>
     <nav class="main-nav" aria-label="التنقل الرئيسي">
@@ -190,6 +200,14 @@
           <p class="char-quote">"من عشر صفحات، إلى الفكرة الواحدة التي تحتاجها."</p>
         </div>
       </div>
+      <div class="sada-demo reveal">
+        <div class="sada-demo-icon" aria-hidden="true">🎙️</div>
+        <div class="sada-demo-body">
+          <h3>جرّب صدى — قريبًا</h3>
+          <p>خدمة تحويل الصوت إلى نص مباشرة من المتصفح لم تُفعَّل بعد على هذا الموقع، لأننا لا نطلق ميزات لم تكتمل اختباراتها. سنضيفها هنا فور جاهزيتها فعليًا.</p>
+          <span class="sada-demo-badge">قريبًا</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -237,7 +255,12 @@
           <span class="eyebrow">نتيجتك</span>
           <h3 id="quizResultName"></h3>
           <p id="quizResultDesc"></p>
-          <button class="quiz-restart" id="quizRestart">أعد الاختبار</button>
+          <div class="quiz-result-actions">
+            <button class="quiz-restart" id="quizRestart">أعد الاختبار</button>
+            <button class="btn btn-ghost quiz-share" id="quizShare" type="button">انسخ النتيجة للمشاركة</button>
+          </div>
+          <span class="quiz-share-status" id="quizShareStatus" role="status" aria-live="polite"></span>
+          <input type="text" class="quiz-share-fallback" id="quizShareFallback" readonly hidden aria-label="انسخ النص يدويًا">
         </div>
       </div>
     </div>
@@ -263,10 +286,46 @@
     </div>
   </section>
 
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <div class="section-head reveal centered">
+        <span class="eyebrow"><span class="eyebrow-dot"></span>أسئلة شائعة</span>
+        <h2>أسئلة يطرحها كل طالب قبل الانضمام</h2>
+        <p>إجابات مباشرة وصادقة، بلا مبالغة في الوعود.</p>
+      </div>
+      <div class="faq-list reveal">
+        <details class="faq-item">
+          <summary>متى يمكنني تجربة براق فعليًا؟</summary>
+          <p class="faq-a">نطلق تدريجيًا عبر قائمة الانتظار أولًا. لا يوجد تاريخ إطلاق ثابت بعد، لأننا لا نطلق للجمهور قبل اكتمال اختبار شامل لكل الخدمات خلف الكواليس.</p>
+        </details>
+        <details class="faq-item">
+          <summary>كم سعر براق؟ هل هو اشتراك شهري؟</summary>
+          <p class="faq-a">براق يعتمد نظام رصيد وباقات مرنة بدل اشتراك جامد ثابت، بحيث تدفع فعليًا حسب استخدامك. تفاصيل الأسعار الدقيقة تُعلن عند فتح التجربة الأولى.</p>
+        </details>
+        <details class="faq-item">
+          <summary>هل يعمل براق بدون اتصال بالإنترنت؟</summary>
+          <p class="faq-a">لا. التلخيص والاختبارات وتحليل الأداء تعتمد على معالجة ذكاء اصطناعي تتم على الخادم، لذا يحتاج براق اتصالًا بالإنترنت ليعمل.</p>
+        </details>
+        <details class="faq-item">
+          <summary>ما الذي يجمعه براق من بياناتي، وهل هي خاصة؟</summary>
+          <p class="faq-a">حاليًا نجمع فقط الاسم والبريد الإلكتروني عبر نموذج قائمة الانتظار، ولا نشاركهما مع أي طرف ثالث. التفاصيل الكاملة في <a href="privacy/">سياسة الخصوصية</a>.</p>
+        </details>
+        <details class="faq-item">
+          <summary>لأي المراحل الدراسية صُمم براق؟</summary>
+          <p class="faq-a">لطلاب الثانوية والجامعة تحديدًا — بمحتوى وتحليل وأسلوب مبني لهذه المرحلة الدراسية بالذات.</p>
+        </details>
+        <details class="faq-item">
+          <summary>هل براق بالعربية فقط، أم يدعم الإنجليزية أيضًا؟</summary>
+          <p class="faq-a">واجهة الموقع والتطبيق ثنائية اللغة (عربي/إنجليزي)، لكن براق مصمَّم أصلًا للطالب العربي أولًا، لا كترجمة لاحقة عن نسخة إنجليزية.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <section class="about" id="about">
     <div class="wrap about-grid">
       <div class="about-text reveal">
-        <span class="about-badge"><span class="dot"></span>قيد التطوير الفعلي — نبنيه علنًا</span>
+        <span class="about-badge" id="readinessBadge"><span class="dot"></span><span id="readinessLabel">قيد التطوير الفعلي — نبنيه علنًا</span></span>
         <h2 style="margin-bottom:18px; font-size:clamp(1.6rem,1.2rem + 1.6vw,2.2rem);">عن براق</h2>
         <p>براق شركة ناشئة تعليمية بدعم من فريق الشباب للابتكار، انطلقت من ملاحظة بسيطة: الطالب العربي يستحق أدوات ذكاء اصطناعي مبنية لغته وسياقه من الأساس، لا مُترجمة عنه لاحقًا.</p>
         <p>نوثّق تقدمنا بصدق، بما في ذلك ما لم يكتمل بعد، لأننا نؤمن أن الشفافية تصنع منتجًا أفضل وأكثر موثوقية على المدى الطويل.</p>
@@ -299,7 +358,7 @@
         </form>
         <div class="waitlist-success" id="waitlistSuccess">✓ تم! سنراسلك قريبًا.</div>
         <p class="waitlist-error" id="waitlistError" hidden></p>
-        <p class="waitlist-note">بريدك يُحفظ في قاعدة بيانات براق ليُستخدم فقط لإعلامك بإطلاق التجربة الأولى.</p>
+        <p class="waitlist-note">بريدك يُحفظ في قاعدة بيانات براق ليُستخدم فقط لإعلامك بإطلاق التجربة الأولى. راجع <a href="privacy/">سياسة الخصوصية</a>.</p>
       </div>
     </div>
   </section>
@@ -312,7 +371,9 @@
     <nav class="footer-links" aria-label="روابط الفوتر">
       <a href="#characters">الشخصيات</a>
       <a href="#features">الميزات</a>
+      <a href="#faq">أسئلة شائعة</a>
       <a href="#about">عن الفريق</a>
+      <a href="privacy/">سياسة الخصوصية</a>
       <a href="mailto:barraq.ai.team@gmail.com">barraq.ai.team@gmail.com</a>
     </nav>
     <div class="footer-copy">© 2026 براق — شركة ناشئة تعليمية بدعم من فريق الشباب للابتكار.</div>

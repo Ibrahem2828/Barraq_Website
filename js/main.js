@@ -7,13 +7,22 @@
 
   // ---------- Loading screen ----------
   // Hides once the window fully loads (fonts + images), with a hard cap so a
-  // slow connection never traps a visitor behind it.
+  // slow connection never traps a visitor behind it. On a fast/cached load
+  // the logo+wordmark reveal animation would otherwise get cut off after a
+  // few ms, so we also enforce a minimum display time -- skipped entirely
+  // under prefers-reduced-motion, where a near-instant hide is preferable.
   var loader = document.getElementById("loadingScreen");
   if (loader) {
+    var loadStart = (window.performance && performance.now) ? performance.now() : Date.now();
+    var minDisplay = reduceMotion ? 0 : 1400;
     var hideLoader = function () {
       if (loader.classList.contains("is-hidden")) return;
-      loader.classList.add("is-hidden");
-      window.setTimeout(function () { loader.setAttribute("hidden", ""); }, 500);
+      var now = (window.performance && performance.now) ? performance.now() : Date.now();
+      var wait = Math.max(0, minDisplay - (now - loadStart));
+      window.setTimeout(function () {
+        loader.classList.add("is-hidden");
+        window.setTimeout(function () { loader.setAttribute("hidden", ""); }, 500);
+      }, wait);
     };
     window.addEventListener("load", hideLoader);
     window.setTimeout(hideLoader, 2500);
@@ -31,6 +40,19 @@
       root.setAttribute("data-theme", next);
       try { localStorage.setItem("baraq_theme", next); } catch (e) {}
     });
+  }
+
+  // ---------- Readiness badge (About section) ----------
+  // Static/manual by design (see README "Positioning") -- the percentage
+  // lives in js/config.js as the one number to edit; this just renders the
+  // localized sentence around it. The markup ships a generic no-JS fallback
+  // string, so a crawler or a JS-disabled visitor still sees an honest,
+  // non-numeric claim instead of nothing.
+  var readinessLabel = document.getElementById("readinessLabel");
+  if (readinessLabel && typeof config.READINESS_PERCENT === "number") {
+    readinessLabel.textContent = lang === "ar"
+      ? config.READINESS_PERCENT + "% جاهزية — نحدّثها بصدق كل أسبوعين"
+      : config.READINESS_PERCENT + "% ready — updated honestly every two weeks";
   }
 
   // ---------- Scroll reveal ----------
@@ -129,6 +151,63 @@
         qIndex = 1;
         document.getElementById("quizResult").classList.remove("active");
         showQuestion(1);
+      });
+    }
+
+    // ---------- Quiz result: copy to share ----------
+    var shareBtn = document.getElementById("quizShare");
+    if (shareBtn) {
+      var shareStatus = document.getElementById("quizShareStatus");
+      var shareFallback = document.getElementById("quizShareFallback");
+      var shareHideTimer = null;
+
+      function shareText() {
+        var name = document.getElementById("quizResultName").textContent;
+        var desc = document.getElementById("quizResultDesc").textContent;
+        var canonical = document.querySelector('link[rel="canonical"]');
+        var url = canonical ? canonical.href : (window.location.origin + "/" + lang + "/");
+        return lang === "ar"
+          ? "أنا " + name + " في براق! " + desc + " جرّبه معي: " + url
+          : "I'm " + name + " on Baraq! " + desc + " Try it with me: " + url;
+      }
+
+      function announce(text, isSuccess) {
+        if (!shareStatus) return;
+        shareStatus.textContent = text;
+        shareStatus.classList.add("visible");
+        window.clearTimeout(shareHideTimer);
+        if (isSuccess) {
+          shareHideTimer = window.setTimeout(function () { shareStatus.classList.remove("visible"); }, 2500);
+        }
+      }
+
+      // Old-browsers / insecure-context fallback: select the text so the
+      // visitor can copy it manually, and still attempt the legacy
+      // execCommand copy so it "just works" wherever that's supported.
+      function fallbackSelect(text) {
+        if (!shareFallback) return;
+        shareFallback.hidden = false;
+        shareFallback.value = text;
+        shareFallback.focus();
+        shareFallback.select();
+        var copied = false;
+        try { copied = document.execCommand("copy"); } catch (e) {}
+        if (copied) {
+          announce(lang === "ar" ? "تم النسخ!" : "Copied!", true);
+        } else {
+          announce(lang === "ar" ? "النص محدد -- انسخه يدويًا" : "Text selected -- copy it manually", false);
+        }
+      }
+
+      shareBtn.addEventListener("click", function () {
+        var text = shareText();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text)
+            .then(function () { announce(lang === "ar" ? "تم النسخ!" : "Copied!", true); })
+            .catch(function () { fallbackSelect(text); });
+        } else {
+          fallbackSelect(text);
+        }
       });
     }
   }
