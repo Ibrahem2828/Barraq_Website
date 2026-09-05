@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baraq · براق — Your AI Companion for the Study Journey</title>
+<meta name="description" content="Baraq — an AI study companion with five AI characters helping Arabic-speaking students summarize, quiz, plan, analyze performance, and turn voice into text.">
+<link rel="canonical" href="https://baraqapp.com/en/">
+<link rel="alternate" hreflang="ar" href="https://baraqapp.com/ar/">
+<link rel="alternate" hreflang="en" href="https://baraqapp.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://baraqapp.com/">
+
+<meta property="og:title" content="Baraq — Your AI Companion for the Study Journey">
+<meta property="og:description" content="Five AI characters, one engine for every study skill: summarization, quizzes, planning, performance analysis, and voice-to-text.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ar_AR">
+<meta property="og:url" content="https://baraqapp.com/en/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B0E1A">
+
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/logo/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/logo/favicon-16.png">
+<link rel="apple-touch-icon" href="../assets/logo/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "Baraq",
+  "alternateName": "براق",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Android, iOS",
+  "inLanguage": ["ar", "en"],
+  "description": "An AI application that helps Arabic-speaking students with summarization, quizzes, study planning, performance analysis, and voice-to-text, through five AI characters: Fahes, Khota, Rasheed, Sada, and Kholasa.",
+  "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
+  "publisher": { "@type": "Organization", "name": "Molham Volunteering Team, Innovation Youth Center", "email": "barraq.ai.team@gmail.com" }
+}
+</script>
+
+<script>
+(function(){
+  try{
+    var theme = localStorage.getItem('baraq_theme');
+    if (theme === 'dark' || theme === 'light') document.documentElement.setAttribute('data-theme', theme);
+  }catch(e){}
+})();
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top" aria-label="Baraq">
+      <img class="brand-logo light" src="../assets/logo/logo-on-light.webp" alt="Baraq" width="120" height="34">
+      <img class="brand-logo dark" src="../assets/logo/logo-on-dark.webp" alt="Baraq" width="120" height="34">
+    </a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="#characters">Characters</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#quiz">Find your match</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="header-actions">
+      <a class="pill-btn" href="/ar/" hreflang="ar" aria-label="التبديل إلى العربية">عربي</a>
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/></svg>
+      </button>
+      <a class="btn btn-primary cta-btn" href="#waitlist">Join waitlist</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" id="top">
+    <div class="wrap hero-inner">
+      <span class="eyebrow"><span class="eyebrow-dot"></span>A volunteer initiative by the Innovation Youth Center</span>
+      <h1>Your AI companion to <span class="hl">understand</span> your lessons, not just memorize them</h1>
+      <p class="lede">Baraq turns your lectures, files and voice recordings into a trustworthy summary, a quiz built on your own material, and a study plan that fits your time — powered by five AI characters working together for you.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#waitlist">Join the waitlist</a>
+        <a class="btn btn-ghost" href="#characters">Meet the characters</a>
+      </div>
+      <div class="hero-tags">
+        <span class="tag">📘 High-school students</span>
+        <span class="tag">🎓 University students</span>
+        <span class="tag">🕋 Arabic-first, not translated</span>
+      </div>
+
+      <div class="constellation" aria-hidden="false">
+        <div class="orb" data-char="sada" style="--c:var(--c-sada)"><div class="orb-glow"></div><img src="../assets/characters/sada/full.webp" alt="Sada" width="200" height="200" loading="lazy"></div>
+        <div class="orb" data-char="kholasa" style="--c:var(--c-kholasa)"><div class="orb-glow"></div><img src="../assets/characters/kholasa/full.webp" alt="Kholasa" width="200" height="200" loading="lazy"></div>
+        <div class="orb" data-char="rasheed" style="--c:var(--c-rasheed)"><div class="orb-glow"></div><img src="../assets/characters/rasheed/full.webp" alt="Rasheed" width="200" height="200" loading="lazy"></div>
+        <div class="orb" data-char="khota" style="--c:var(--c-khota)"><div class="orb-glow"></div><img src="../assets/characters/khota/full.webp" alt="Khota" width="200" height="200" loading="lazy"></div>
+        <div class="orb" data-char="fahes" style="--c:var(--c-fahes)"><div class="orb-glow"></div><img src="../assets/characters/fahes/full.webp" alt="Fahes" width="200" height="200" loading="lazy"></div>
+      </div>
+      <div class="scroll-cue">Scroll to explore<span class="line"></span></div>
+    </div>
+  </section>
+
+  <section class="journey" id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow"><span class="eyebrow-dot"></span>How it works</span>
+        <h2>From chaos to clarity in 4 steps</h2>
+        <p>No random memorizing, no aimless scrolling. Four simple steps turn any study material into a clear path.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><div class="step-num">1</div><h3>Upload your content</h3><p>Text, a lecture file, or a voice recording — as-is, no formatting needed.</p></div>
+        <div class="step reveal"><div class="step-num">2</div><h3>The five characters work</h3><p>Each character analyzes it from their angle: summary, transcription, planning, assessment.</p></div>
+        <div class="step reveal"><div class="step-num">3</div><h3>You get the result</h3><p>A structured summary, a quiz built on your own material, and a realistic review plan.</p></div>
+        <div class="step reveal"><div class="step-num">4</div><h3>Rasheed tracks your progress</h3><p>Ongoing performance analysis pinpointing exactly what to focus on next.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="characters" id="characters">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow"><span class="eyebrow-dot"></span>The Baraq team</span>
+        <h2>Five characters, one engine for every study skill</h2>
+        <p>Each character has its own color, role and personality — yet they work as one cohesive team. Hover or tap a card to see it in action.</p>
+      </div>
+      <div class="char-grid">
+        <div class="char-card reveal" data-char="fahes" tabindex="0">
+          <div class="char-figure">
+            <img class="base" src="../assets/characters/fahes/full.webp" alt="Fahes" width="200" height="200" loading="lazy">
+            <img class="alt" src="../assets/characters/fahes/alt.webp" alt="" width="200" height="200" loading="lazy">
+          </div>
+          <div class="char-name">Fahes <span>· فاحص</span></div>
+          <div class="char-role">Quizzes &amp; assessment</div>
+          <p class="char-desc">Generates quizzes straight from your own material and pinpoints your strengths and gaps.</p>
+          <p class="char-quote">"I know your strengths — and I prove them with numbers."</p>
+        </div>
+        <div class="char-card reveal" data-char="khota" tabindex="0">
+          <div class="char-figure">
+            <img class="base" src="../assets/characters/khota/full.webp" alt="Khota" width="200" height="200" loading="lazy">
+          </div>
+          <div class="char-name">Khota <span>· خُطى</span></div>
+          <div class="char-role">Study planning</div>
+          <p class="char-desc">Builds a balanced daily and weekly plan based on your available time and subject difficulty.</p>
+          <p class="char-quote">"Today's step is clearer than a whole week of chaos."</p>
+        </div>
+        <div class="char-card reveal" data-char="rasheed" tabindex="0">
+          <div class="char-figure">
+            <img class="base" src="../assets/characters/rasheed/full.webp" alt="Rasheed" width="200" height="200" loading="lazy">
+          </div>
+          <div class="char-name">Rasheed <span>· رشيد</span></div>
+          <div class="char-role">Performance analysis</div>
+          <p class="char-desc">Tracks your progress over time and recommends what actually deserves your focus next.</p>
+          <p class="char-quote">"The numbers speak — I translate what they're saying."</p>
+        </div>
+        <div class="char-card reveal" data-char="sada" tabindex="0">
+          <div class="char-figure">
+            <img class="base" src="../assets/characters/sada/full.webp" alt="Sada" width="200" height="200" loading="lazy">
+            <img class="alt" src="../assets/characters/sada/alt.webp" alt="" width="200" height="200" loading="lazy">
+          </div>
+          <div class="char-name">Sada <span>· صدى</span></div>
+          <div class="char-role">Voice to text</div>
+          <p class="char-desc">Turns your recorded lectures into organized, quickly reviewable text.</p>
+          <p class="char-quote">"Say what you hear — I hand it back as organized words."</p>
+        </div>
+        <div class="char-card reveal" data-char="kholasa" tabindex="0">
+          <div class="char-figure">
+            <img class="base" src="../assets/characters/kholasa/full.webp" alt="Kholasa" width="200" height="200" loading="lazy">
+            <img class="alt" src="../assets/characters/kholasa/alt.webp" alt="" width="200" height="200" loading="lazy">
+          </div>
+          <div class="char-name">Kholasa <span>· خُلاصة</span></div>
+          <div class="char-role">Smart summarization</div>
+          <p class="char-desc">Simplifies long lectures into clear points or quick review flashcards.</p>
+          <p class="char-quote">"From ten pages, to the one idea you actually need."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quiz" id="quiz">
+    <div class="wrap">
+      <div class="section-head reveal centered">
+        <span class="eyebrow"><span class="eyebrow-dot"></span>Interactive</span>
+        <h2>Which Baraq character are you?</h2>
+        <p>Three quick questions, and we'll tell you which Baraq engine matches your study style.</p>
+      </div>
+      <div class="quiz-box reveal" id="quizBox">
+        <div class="quiz-progress"><span id="qp1"></span><span id="qp2"></span><span id="qp3"></span></div>
+        <div class="quiz-q active" data-q="1">
+          <h3>1. When do you feel most productive while studying?</h3>
+          <div class="quiz-opts">
+            <button class="quiz-opt" data-c="khota">When I have a clear daily plan in front of me</button>
+            <button class="quiz-opt" data-c="fahes">When I quiz myself to confirm I understood</button>
+            <button class="quiz-opt" data-c="sada">When I record my voice instead of writing</button>
+            <button class="quiz-opt" data-c="rasheed">When I can clearly see my progress numbers</button>
+            <button class="quiz-opt" data-c="kholasa">When everything is condensed into one page</button>
+          </div>
+        </div>
+        <div class="quiz-q" data-q="2">
+          <h3>2. What's your biggest study challenge?</h3>
+          <div class="quiz-opts">
+            <button class="quiz-opt" data-c="khota">I don't know where to start my study week</button>
+            <button class="quiz-opt" data-c="fahes">I forget material if I'm never quizzed on it</button>
+            <button class="quiz-opt" data-c="sada">Long voice lectures that are hard to review</button>
+            <button class="quiz-opt" data-c="rasheed">I don't know exactly where I'm going wrong</button>
+            <button class="quiz-opt" data-c="kholasa">Content is scattered across too many files</button>
+          </div>
+        </div>
+        <div class="quiz-q" data-q="3">
+          <h3>3. What feels most comfortable when reviewing?</h3>
+          <div class="quiz-opts">
+            <button class="quiz-opt" data-c="khota">A timeline with ordered steps</button>
+            <button class="quiz-opt" data-c="fahes">Questions and scores that measure my understanding</button>
+            <button class="quiz-opt" data-c="sada">Listening instead of long reading</button>
+            <button class="quiz-opt" data-c="rasheed">Charts and indicators analyzing my performance</button>
+            <button class="quiz-opt" data-c="kholasa">A short summary and review flashcards</button>
+          </div>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <img id="quizResultImg" src="" alt="">
+          <span class="eyebrow">Your match</span>
+          <h3 id="quizResultName"></h3>
+          <p id="quizResultDesc"></p>
+          <button class="quiz-restart" id="quizRestart">Restart</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow"><span class="eyebrow-dot"></span>Baraq index</span>
+        <h2>Features, in the order of your study journey</h2>
+        <p>From the moment you upload content to the moment you see your results — every feature closes a real gap for Arabic-speaking students.</p>
+      </div>
+      <div class="feat-list">
+        <div class="feat-row reveal"><div class="feat-num">01</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-kholasa)"></span>Smart summarization<span class="feat-owner" style="--feat-color:var(--c-kholasa)">Kholasa</span></h3><p>Summarize long lectures, files and texts, choosing length and style, then convert the result into review flashcards.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">02</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-fahes)"></span>Interactive quizzes from your content<span class="feat-owner" style="--feat-color:var(--c-fahes)">Fahes</span></h3><p>Quizzes generated from exactly what you uploaded, with answer analysis pinpointing strengths and gaps.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">03</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-sada)"></span>Voice-to-organized-text<span class="feat-owner" style="--feat-color:var(--c-sada)">Sada</span></h3><p>Upload or record a lecture and get formatted text you can review quickly instead of re-listening.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">04</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-khota)"></span>Smart study planning<span class="feat-owner" style="--feat-color:var(--c-khota)">Khota</span></h3><p>A balanced daily and weekly plan built around your available time and each subject's difficulty — never generic.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">05</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-rasheed)"></span>Performance analysis &amp; practical tips<span class="feat-owner" style="--feat-color:var(--c-rasheed)">Rasheed</span></h3><p>Track your progress over time, with weekly recommendations on what truly deserves focus next.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">06</div><div class="feat-body"><h3><span class="feat-tab"></span>Flexible packages &amp; credits<span class="feat-owner">Platform</span></h3><p>Usage-based credits and packages instead of a rigid subscription, so Baraq stays accessible at every usage level.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">07</div><div class="feat-body"><h3><span class="feat-tab"></span>Full admin dashboard<span class="feat-owner">Platform</span></h3><p>User and subscription management with usage monitoring, ensuring a stable, reliable experience behind the scenes.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">08</div><div class="feat-body"><h3><span class="feat-tab"></span>Arabic-first, never an afterthought<span class="feat-owner">Platform</span></h3><p>An RTL experience designed from the ground up for the Arabic-speaking student, from content to analysis.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="wrap about-grid">
+      <div class="about-text reveal">
+        <span class="about-badge"><span class="dot"></span>Actively in development — building in public</span>
+        <h2 style="margin-bottom:18px; font-size:clamp(1.6rem,1.2rem + 1.6vw,2.2rem);">About Baraq</h2>
+        <p>Baraq is a volunteer educational initiative by the Molham Volunteering Team at the Innovation Youth Center, born from a simple observation: Arabic-speaking students deserve AI tools built for their language and context from day one — not translated as an afterthought.</p>
+        <p>We document our progress honestly, including what isn't finished yet — because we believe transparency builds a better, more trustworthy product over time.</p>
+      </div>
+      <div class="team-list reveal">
+        <div class="team-item"><div class="team-avatar" style="background:var(--c-sada)">IB</div><div><div class="team-name">Ibrahim</div><div class="team-role">AI engineering</div></div></div>
+        <div class="team-item"><div class="team-avatar" style="background:var(--c-khota)">MU</div><div><div class="team-name">Muath</div><div class="team-role">Mobile app &amp; QA</div></div></div>
+        <div class="team-item"><div class="team-avatar" style="background:var(--c-rasheed)">AB</div><div><div class="team-name">Abdulrahman</div><div class="team-role">Admin dashboard</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="waitlist" id="waitlist">
+    <div class="wrap">
+      <div class="waitlist-box reveal">
+        <span class="eyebrow"><span class="eyebrow-dot"></span>Coming soon</span>
+        <h2>Be the first to try Baraq</h2>
+        <p>Leave your email and we'll notify you the moment early access opens.</p>
+        <form class="waitlist-form" id="waitlistForm">
+          <label class="sr-only" for="waitlistEmail">Email</label>
+          <input type="email" id="waitlistEmail" required placeholder="you@example.com" autocomplete="email">
+          <button type="submit" class="btn btn-primary">Notify me</button>
+        </form>
+        <div class="waitlist-success" id="waitlistSuccess">✓ Done! We'll be in touch soon.</div>
+        <p class="waitlist-note">Demo form within this preview — needs wiring to a real email service before launch.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-left"><span class="footer-tag">Your AI companion for the study journey</span></div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="#characters">Characters</a>
+      <a href="#features">Features</a>
+      <a href="#about">About</a>
+      <a href="mailto:barraq.ai.team@gmail.com">barraq.ai.team@gmail.com</a>
+    </nav>
+    <div class="footer-copy">© 2026 Baraq — proudly built by the Molham Volunteering Team, Innovation Youth Center.</div>
+  </div>
+</footer>
+
+<script>
+window.BARAQ_QUIZ_DATA = {
+  fahes:   { name: 'Fahes', desc: 'You learn through constant testing and knowing your level in numbers — Fahes is your closest match.', img: '../assets/characters/fahes/full.webp' },
+  khota:   { name: 'Khota', desc: "You need clear steps and an organized schedule to feel in control of your time — Khota fits you perfectly.", img: '../assets/characters/khota/full.webp' },
+  rasheed: { name: 'Rasheed', desc: 'You love understanding your performance through numbers and analysis first — Rasheed is your character.', img: '../assets/characters/rasheed/full.webp' },
+  sada:    { name: 'Sada', desc: 'Listening comes easier than reading, and you prefer turning voice into organized words — Sada is like you.', img: '../assets/characters/sada/full.webp' },
+  kholasa: { name: 'Kholasa', desc: 'You want just the essence, no filler — quick summaries and flashcards are your way — Kholasa is you.', img: '../assets/characters/kholasa/full.webp' }
+};
+</script>
+<script src="../js/main.js"></script>
+</body>
+</html>

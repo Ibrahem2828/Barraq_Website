@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>براق · Baraq</title>
+<meta name="description" content="براق | Baraq — رفيق دراسة ذكي بخمس شخصيات ذكاء اصطناعي. An AI study companion for Arabic-speaking students.">
+<link rel="canonical" href="https://baraqapp.com/">
+<link rel="alternate" hreflang="ar" href="https://baraqapp.com/ar/">
+<link rel="alternate" hreflang="en" href="https://baraqapp.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://baraqapp.com/">
+<meta name="theme-color" content="#0B0E1A">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0B0E1A;color:#F4F2FB;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;text-align:center;padding:24px}
+  a{color:#F2B84E;font-weight:700;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .row{display:flex;gap:16px;justify-content:center;margin-top:18px;font-size:1.1rem}
+</style>
+<script>
+  // No server-side language negotiation on static hosting, so redirect
+  // client-side based on the browser's language, defaulting to Arabic
+  // (the primary audience). Crawlers and no-JS visitors see the links below
+  // instead, plus both hreflang tags above.
+  (function () {
+    var lang = (navigator.language || navigator.userLanguage || "ar").toLowerCase();
+    var target = lang.indexOf("ar") === 0 ? "ar/" : "en/";
+    window.location.replace(target);
+  })();
+</script>
+</head>
+<body>
+  <noscript>
+    <p>براق · Baraq</p>
+    <div class="row">
+      <a href="ar/">العربية</a>
+      <a href="en/">English</a>
+    </div>
+  </noscript>
+</body>
+</html>
