@@ -27,6 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
+<link rel="preload" as="image" href="../assets/logo/wordmark.webp">
 
 <script type="application/ld+json">
 {
@@ -39,7 +40,7 @@
   "inLanguage": ["ar", "en"],
   "description": "An AI application that helps Arabic-speaking students with summarization, quizzes, study planning, performance analysis, and voice-to-text, through five AI characters: Fahes, Khota, Rasheed, Sada, and Kholasa.",
   "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
-  "publisher": { "@type": "Organization", "name": "Molham Volunteering Team, Innovation Youth Center", "email": "barraq.ai.team@gmail.com" }
+  "publisher": { "@type": "Organization", "name": "Innovation Youth Team", "email": "barraq.ai.team@gmail.com" }
 }
 </script>
 
@@ -53,6 +54,11 @@
 </script>
 </head>
 <body>
+
+<div class="loading-screen" id="loadingScreen" role="status" aria-label="Loading">
+  <img src="../assets/logo/icon-source.webp" alt="" width="84" height="84">
+  <div class="loading-bar"></div>
+</div>
 
 <a href="#main" class="skip-link">Skip to content</a>
 
@@ -84,7 +90,8 @@
 
   <section class="hero" id="top">
     <div class="wrap hero-inner">
-      <span class="eyebrow"><span class="eyebrow-dot"></span>A volunteer initiative by the Innovation Youth Center</span>
+      <img class="hero-brandmark" src="../assets/logo/wordmark.webp" alt="Baraq" width="96" height="96" fetchpriority="high">
+      <span class="eyebrow"><span class="eyebrow-dot"></span>A startup backed by the Innovation Youth Team</span>
       <h1>Your AI companion to <span class="hl">understand</span> your lessons, not just memorize them</h1>
       <p class="lede">Baraq turns your lectures, files and voice recordings into a trustworthy summary, a quiz built on your own material, and a study plan that fits your time — powered by five AI characters working together for you.</p>
       <div class="hero-ctas">
@@ -259,7 +266,7 @@
       <div class="about-text reveal">
         <span class="about-badge"><span class="dot"></span>Actively in development — building in public</span>
         <h2 style="margin-bottom:18px; font-size:clamp(1.6rem,1.2rem + 1.6vw,2.2rem);">About Baraq</h2>
-        <p>Baraq is a volunteer educational initiative by the Molham Volunteering Team at the Innovation Youth Center, born from a simple observation: Arabic-speaking students deserve AI tools built for their language and context from day one — not translated as an afterthought.</p>
+        <p>Baraq is an educational startup backed by the Innovation Youth Team, born from a simple observation: Arabic-speaking students deserve AI tools built for their language and context from day one — not translated as an afterthought.</p>
         <p>We document our progress honestly, including what isn't finished yet — because we believe transparency builds a better, more trustworthy product over time.</p>
       </div>
       <div class="team-list reveal">
@@ -273,16 +280,22 @@
   <section class="waitlist" id="waitlist">
     <div class="wrap">
       <div class="waitlist-box reveal">
+        <span class="waitlist-count" id="waitlistCount" hidden></span>
         <span class="eyebrow"><span class="eyebrow-dot"></span>Coming soon</span>
         <h2>Be the first to try Baraq</h2>
         <p>Leave your email and we'll notify you the moment early access opens.</p>
         <form class="waitlist-form" id="waitlistForm">
           <label class="sr-only" for="waitlistEmail">Email</label>
           <input type="email" id="waitlistEmail" required placeholder="you@example.com" autocomplete="email">
+          <span class="sr-only" aria-hidden="true">
+            <label for="waitlistCompany">Leave this blank</label>
+            <input type="text" id="waitlistCompany" tabindex="-1" autocomplete="off">
+          </span>
           <button type="submit" class="btn btn-primary">Notify me</button>
         </form>
         <div class="waitlist-success" id="waitlistSuccess">✓ Done! We'll be in touch soon.</div>
-        <p class="waitlist-note">Demo form within this preview — needs wiring to a real email service before launch.</p>
+        <p class="waitlist-error" id="waitlistError" hidden></p>
+        <p class="waitlist-note">Your email is stored in Baraq's own database, used only to notify you when early access opens.</p>
       </div>
     </div>
   </section>
@@ -298,7 +311,7 @@
       <a href="#about">About</a>
       <a href="mailto:barraq.ai.team@gmail.com">barraq.ai.team@gmail.com</a>
     </nav>
-    <div class="footer-copy">© 2026 Baraq — proudly built by the Molham Volunteering Team, Innovation Youth Center.</div>
+    <div class="footer-copy">© 2026 Baraq — an educational startup backed by the Innovation Youth Team.</div>
   </div>
 </footer>
 
@@ -311,6 +324,7 @@ window.BARAQ_QUIZ_DATA = {
   kholasa: { name: 'Kholasa', desc: 'You want just the essence, no filler — quick summaries and flashcards are your way — Kholasa is you.', img: '../assets/characters/kholasa/full.webp' }
 };
 </script>
+<script src="../js/config.js"></script>
 <script src="../js/main.js"></script>
 </body>
 </html>

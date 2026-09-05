@@ -105,7 +105,7 @@ html[lang="en"] .eyebrow { text-transform: uppercase; letter-spacing: .08em; fon
 .site-header { position: sticky; top: 0; z-index: 100; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
 .header-inner { display: flex; align-items: center; gap: 20px; padding-block: 14px; }
 .brand { display: flex; align-items: center; }
-.brand-logo { height: 34px; width: auto; }
+.brand-logo { height: 42px; width: auto; filter: drop-shadow(0 4px 10px rgba(232,160,37,.25)); }
 .brand-logo.dark { display: none; }
 :root[data-theme="dark"] .brand-logo.light { display: none; }
 :root[data-theme="dark"] .brand-logo.dark { display: block; }
@@ -133,6 +133,9 @@ html[lang="en"] .eyebrow { text-transform: uppercase; letter-spacing: .08em; fon
 /* ============ Hero ============ */
 .hero { padding-block: 64px 40px; overflow: hidden; }
 .hero-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px; max-width: 780px; margin-inline: auto; }
+.hero-brandmark { width: 96px; height: auto; margin-bottom: -8px; filter: drop-shadow(0 10px 26px rgba(232,160,37,.3)); animation: brandmark-pulse 4s ease-in-out infinite; }
+@keyframes brandmark-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .hero-brandmark { animation: none; } }
 .hero h1 { font-size: clamp(2.1rem, 1.2rem + 3.6vw, 3.5rem); font-weight: 800; }
 .hero h1 .hl { color: var(--accent); }
 .hero .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 620px; }
@@ -273,3 +276,65 @@ html[dir="rtl"] .steps::before { background: repeating-linear-gradient(to left, 
 .footer-links a { font-size: .85rem; color: var(--ink-soft); }
 .footer-links a:hover { color: var(--ink); }
 .footer-copy { width: 100%; text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border); font-size: .78rem; color: var(--ink-faint); }
+
+/* ============ Loading screen ============ */
+.loading-screen {
+  position: fixed; inset: 0; z-index: 999; background: #0B0E1A;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  transition: opacity .5s ease;
+}
+.loading-screen.is-hidden { opacity: 0; pointer-events: none; }
+.loading-screen img { width: 84px; height: 84px; animation: loader-spin 2.2s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(232,160,37,.35)); }
+.loading-screen .loading-bar { width: 140px; height: 3px; border-radius: 3px; background: rgba(244,242,251,.12); overflow: hidden; }
+.loading-screen .loading-bar::after {
+  content: ""; display: block; height: 100%; width: 40%; border-radius: 3px;
+  background: linear-gradient(90deg, transparent, #F2B84E, transparent);
+  animation: loader-sweep 1.3s ease-in-out infinite;
+}
+@keyframes loader-spin { 0%,100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.08) rotate(6deg); } }
+@keyframes loader-sweep { 0% { transform: translateX(-140%); } 100% { transform: translateX(280%); } }
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen img { animation: none; }
+  .loading-screen .loading-bar::after { animation: none; width: 100%; }
+}
+
+/* ============ Pseudo-3D tilt (character orbs + cards) ============ */
+/* --tilt-x/--tilt-y/--shine-x/--shine-y are set inline by js/main.js on
+   pointermove; they default to a neutral, flat state so the effect is a
+   pure enhancement -- everything still looks correct with JS off. */
+.orb, .char-card {
+  --tilt-x: 0deg; --tilt-y: 0deg; --shine-x: 50%; --shine-y: 50%;
+}
+.orb { perspective: 700px; }
+.orb img {
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform .15s ease-out;
+  transform-style: preserve-3d;
+}
+.char-card {
+  perspective: 900px;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(0);
+  transition: transform .15s ease-out, box-shadow .35s ease, border-color .35s ease;
+}
+.char-card:hover, .char-card:focus-within { transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(-8px) scale(1.02); }
+.char-figure { isolation: isolate; }
+.char-figure::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 1;
+  background: radial-gradient(circle at var(--shine-x) var(--shine-y), rgba(255,255,255,.35), transparent 55%);
+  mix-blend-mode: soft-light;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orb img, .char-card { transition: none; }
+}
+
+/* ============ Waitlist social proof + error ============ */
+.waitlist-count {
+  display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 700;
+  color: var(--accent); background: color-mix(in srgb, var(--accent-solid) 12%, transparent);
+  padding: 7px 16px; border-radius: 999px; margin-bottom: 18px;
+}
+.waitlist-count::before { content: "●"; font-size: .55rem; color: #3AA65A; }
+.waitlist-error {
+  margin-top: 12px; font-size: .85rem; font-weight: 600; color: #C0392B;
+  background: color-mix(in srgb, #C0392B 10%, transparent); padding: 10px 16px; border-radius: var(--radius-sm);
+}

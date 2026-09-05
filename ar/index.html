@@ -27,6 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
+<link rel="preload" as="image" href="../assets/logo/wordmark.webp">
 
 <script type="application/ld+json">
 {
@@ -39,7 +40,7 @@
   "inLanguage": ["ar", "en"],
   "description": "تطبيق ذكاء اصطناعي يرافق الطلاب العرب في التلخيص والاختبارات والتخطيط الدراسي وتحليل الأداء وتحويل الصوت إلى نص، عبر خمس شخصيات ذكية: فاحص، خُطى، رشيد، صدى، وخُلاصة.",
   "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
-  "publisher": { "@type": "Organization", "name": "فريق ملهم التطوعي · مركز الشباب للابتكار", "email": "barraq.ai.team@gmail.com" }
+  "publisher": { "@type": "Organization", "name": "فريق الشباب للابتكار", "email": "barraq.ai.team@gmail.com" }
 }
 </script>
 
@@ -53,6 +54,11 @@
 </script>
 </head>
 <body>
+
+<div class="loading-screen" id="loadingScreen" role="status" aria-label="جارٍ التحميل">
+  <img src="../assets/logo/icon-source.webp" alt="" width="84" height="84">
+  <div class="loading-bar"></div>
+</div>
 
 <a href="#main" class="skip-link">تخطي إلى المحتوى</a>
 
@@ -84,7 +90,8 @@
 
   <section class="hero" id="top">
     <div class="wrap hero-inner">
-      <span class="eyebrow"><span class="eyebrow-dot"></span>مبادرة تطوعية من مركز الشباب للابتكار</span>
+      <img class="hero-brandmark" src="../assets/logo/wordmark.webp" alt="براق" width="96" height="96" fetchpriority="high">
+      <span class="eyebrow"><span class="eyebrow-dot"></span>شركة ناشئة بدعم من فريق الشباب للابتكار</span>
       <h1>رفيقك الذكي لفهم دروسك، <span class="hl">لا لحفظها</span></h1>
       <p class="lede">براق يحوّل محاضراتك وملفاتك ومقاطعك الصوتية إلى ملخص موثوق، اختبار مبني على محتواك فعلًا، وخطة مراجعة تناسب وقتك — بخمس شخصيات ذكاء اصطناعي تعمل معًا لأجلك.</p>
       <div class="hero-ctas">
@@ -259,7 +266,7 @@
       <div class="about-text reveal">
         <span class="about-badge"><span class="dot"></span>قيد التطوير الفعلي — نبنيه علنًا</span>
         <h2 style="margin-bottom:18px; font-size:clamp(1.6rem,1.2rem + 1.6vw,2.2rem);">عن براق</h2>
-        <p>براق مبادرة تطوعية تعليمية تابعة لفريق ملهم التطوعي ضمن مركز الشباب للابتكار، وُلدت من ملاحظة بسيطة: الطالب العربي يستحق أدوات ذكاء اصطناعي مبنية لغته وسياقه من الأساس، لا مُترجمة عنه لاحقًا.</p>
+        <p>براق شركة ناشئة تعليمية بدعم من فريق الشباب للابتكار، انطلقت من ملاحظة بسيطة: الطالب العربي يستحق أدوات ذكاء اصطناعي مبنية لغته وسياقه من الأساس، لا مُترجمة عنه لاحقًا.</p>
         <p>نوثّق تقدمنا بصدق، بما في ذلك ما لم يكتمل بعد، لأننا نؤمن أن الشفافية تصنع منتجًا أفضل وأكثر موثوقية على المدى الطويل.</p>
       </div>
       <div class="team-list reveal">
@@ -273,16 +280,22 @@
   <section class="waitlist" id="waitlist">
     <div class="wrap">
       <div class="waitlist-box reveal">
+        <span class="waitlist-count" id="waitlistCount" hidden></span>
         <span class="eyebrow"><span class="eyebrow-dot"></span>قريبًا</span>
         <h2>كن أول من يجرّب براق</h2>
         <p>اترك بريدك الإلكتروني وسنُعلمك فور فتح التجربة الأولى.</p>
         <form class="waitlist-form" id="waitlistForm">
           <label class="sr-only" for="waitlistEmail">البريد الإلكتروني</label>
           <input type="email" id="waitlistEmail" required placeholder="you@example.com" autocomplete="email">
+          <span class="sr-only" aria-hidden="true">
+            <label for="waitlistCompany">اتركه فارغًا</label>
+            <input type="text" id="waitlistCompany" tabindex="-1" autocomplete="off">
+          </span>
           <button type="submit" class="btn btn-primary">أعلمني</button>
         </form>
         <div class="waitlist-success" id="waitlistSuccess">✓ تم! سنراسلك قريبًا.</div>
-        <p class="waitlist-note">نموذج تجريبي ضمن هذا العرض — يحتاج ربطًا بخدمة بريدية فعلية قبل الإطلاق.</p>
+        <p class="waitlist-error" id="waitlistError" hidden></p>
+        <p class="waitlist-note">بريدك يُحفظ في قاعدة بيانات براق ليُستخدم فقط لإعلامك بإطلاق التجربة الأولى.</p>
       </div>
     </div>
   </section>
@@ -298,7 +311,7 @@
       <a href="#about">عن الفريق</a>
       <a href="mailto:barraq.ai.team@gmail.com">barraq.ai.team@gmail.com</a>
     </nav>
-    <div class="footer-copy">© 2026 براق — صُنع بفخر من فريق ملهم التطوعي، ضمن مركز الشباب للابتكار.</div>
+    <div class="footer-copy">© 2026 براق — شركة ناشئة تعليمية بدعم من فريق الشباب للابتكار.</div>
   </div>
 </footer>
 
@@ -311,6 +324,7 @@ window.BARAQ_QUIZ_DATA = {
   kholasa: { name: 'خُلاصة', desc: 'تريد الجوهر فقط، بلا حشو — التلخيص والبطاقات السريعة هي طريقتك — خُلاصة هي أنت.', img: '../assets/characters/kholasa/full.webp' }
 };
 </script>
+<script src="../js/config.js"></script>
 <script src="../js/main.js"></script>
 </body>
 </html>
