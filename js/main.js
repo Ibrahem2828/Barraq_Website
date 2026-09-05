@@ -135,17 +135,31 @@
 
   // ---------- Waitlist counter (social proof) ----------
   var countEl = document.getElementById("waitlistCount");
+  function labelFor(n) {
+    return lang === "ar"
+      ? (n === 1 ? "شخص واحد بالفعل بالقائمة" : n + " شخصاً بالفعل بالقائمة")
+      : n + (n === 1 ? " person" : " people") + " already on the list";
+  }
   function renderCount(n) {
     if (!countEl) return;
-    if (n > 0) {
-      var label = lang === "ar"
-        ? (n === 1 ? "شخص واحد بالفعل بالقائمة" : n + " شخصاً بالفعل بالقائمة")
-        : n + (n === 1 ? " person" : " people") + " already on the list";
-      countEl.textContent = label;
-      countEl.hidden = false;
-    } else {
-      countEl.hidden = true;
+    if (n <= 0) { countEl.hidden = true; return; }
+    countEl.hidden = false;
+    var previous = Number(countEl.dataset.count) || 0;
+    countEl.dataset.count = String(n);
+    if (reduceMotion || previous === n) {
+      countEl.textContent = labelFor(n);
+      return;
     }
+    var start = performance.now();
+    var duration = 700;
+    function tick(now) {
+      var progress = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.round(previous + (n - previous) * eased);
+      countEl.textContent = labelFor(current);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
   if (countEl && config.API_BASE_URL) {
     fetch(config.API_BASE_URL + "/waitlist/count/", { headers: { Accept: "application/json" } })
@@ -159,6 +173,7 @@
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      var nameInput = document.getElementById("waitlistName");
       var emailInput = document.getElementById("waitlistEmail");
       var honeypot = document.getElementById("waitlistCompany");
       var submitBtn = form.querySelector("button[type=submit]");
@@ -179,6 +194,7 @@
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           email: emailInput.value.trim(),
+          full_name: nameInput ? nameInput.value.trim() : "",
           locale: lang,
           company: honeypot ? honeypot.value : ""
         })

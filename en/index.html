@@ -65,8 +65,8 @@
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="#top" aria-label="Baraq">
-      <img class="brand-logo light" src="../assets/logo/logo-on-light.webp" alt="Baraq" width="120" height="34">
-      <img class="brand-logo dark" src="../assets/logo/logo-on-dark.webp" alt="Baraq" width="120" height="34">
+      <img class="brand-logo" src="../assets/logo/icon-only.webp" alt="" width="34" height="34">
+      <span class="brand-name">Baraq</span>
     </a>
     <nav class="main-nav" aria-label="Primary">
       <a href="#characters">Characters</a>
@@ -152,6 +152,7 @@
         <div class="char-card reveal" data-char="khota" tabindex="0">
           <div class="char-figure">
             <img class="base" src="../assets/characters/khota/full.webp" alt="Khota" width="200" height="200" loading="lazy">
+            <img class="alt" src="../assets/characters/khota/alt.webp" alt="" width="200" height="200" loading="lazy">
           </div>
           <div class="char-name">Khota <span>· خُطى</span></div>
           <div class="char-role">Study planning</div>
@@ -161,6 +162,7 @@
         <div class="char-card reveal" data-char="rasheed" tabindex="0">
           <div class="char-figure">
             <img class="base" src="../assets/characters/rasheed/full.webp" alt="Rasheed" width="200" height="200" loading="lazy">
+            <img class="alt" src="../assets/characters/rasheed/alt.webp" alt="" width="200" height="200" loading="lazy">
           </div>
           <div class="char-name">Rasheed <span>· رشيد</span></div>
           <div class="char-role">Performance analysis</div>
@@ -270,8 +272,8 @@
         <p>We document our progress honestly, including what isn't finished yet — because we believe transparency builds a better, more trustworthy product over time.</p>
       </div>
       <div class="team-list reveal">
-        <div class="team-item"><div class="team-avatar" style="background:var(--c-sada)">IB</div><div><div class="team-name">Ibrahim</div><div class="team-role">AI engineering</div></div></div>
-        <div class="team-item"><div class="team-avatar" style="background:var(--c-khota)">MU</div><div><div class="team-name">Muath</div><div class="team-role">Mobile app &amp; QA</div></div></div>
+        <div class="team-item"><div class="team-avatar" style="background:var(--c-sada)">IB</div><div><div class="team-name">Ibrahim</div><div class="team-role">AI &amp; Mobile Engineering</div></div></div>
+        <div class="team-item"><div class="team-avatar" style="background:var(--c-khota)">MU</div><div><div class="team-name">Muath</div><div class="team-role">QA &amp; Testing</div></div></div>
         <div class="team-item"><div class="team-avatar" style="background:var(--c-rasheed)">AB</div><div><div class="team-name">Abdulrahman</div><div class="team-role">Admin dashboard</div></div></div>
       </div>
     </div>
@@ -285,6 +287,8 @@
         <h2>Be the first to try Baraq</h2>
         <p>Leave your email and we'll notify you the moment early access opens.</p>
         <form class="waitlist-form" id="waitlistForm">
+          <label class="sr-only" for="waitlistName">Name</label>
+          <input type="text" id="waitlistName" required placeholder="Your full name" autocomplete="name">
           <label class="sr-only" for="waitlistEmail">Email</label>
           <input type="email" id="waitlistEmail" required placeholder="you@example.com" autocomplete="email">
           <span class="sr-only" aria-hidden="true">

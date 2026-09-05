@@ -100,22 +100,29 @@ html[lang="en"] .eyebrow { text-transform: uppercase; letter-spacing: .08em; fon
 .btn-primary:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 .btn-ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--border-strong); }
 .btn-ghost:hover { border-color: var(--accent-solid); color: var(--accent); }
+.btn:active { transform: scale(.96); }
 
 /* ============ Header ============ */
 .site-header { position: sticky; top: 0; z-index: 100; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
 .header-inner { display: flex; align-items: center; gap: 20px; padding-block: 14px; }
-.brand { display: flex; align-items: center; }
-.brand-logo { height: 42px; width: auto; filter: drop-shadow(0 4px 10px rgba(232,160,37,.25)); }
-.brand-logo.dark { display: none; }
-:root[data-theme="dark"] .brand-logo.light { display: none; }
-:root[data-theme="dark"] .brand-logo.dark { display: block; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .brand-logo.light { display: none; }
-  :root:not([data-theme="light"]) .brand-logo.dark { display: block; }
-}
+/* A single gems-only mark (no wordmark text baked in) works unchanged on
+   both themes, so the header no longer needs a light/dark image swap --
+   that swap is what silently broke: the full logo's white/navy background
+   removal missed the dark variant's actual background color, so it kept
+   rendering as an opaque square in dark mode. The full icon+wordmark lockup
+   is still used at hero/footer size, where the wordmark is actually legible. */
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo { height: 34px; width: auto; filter: drop-shadow(0 4px 10px rgba(232,160,37,.3)); }
+.brand-name { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--ink); }
 .main-nav { display: flex; align-items: center; gap: 28px; margin-inline-start: 12px; flex: 1; }
-.main-nav a { font-size: .95rem; font-weight: 600; color: var(--ink-soft); }
+.main-nav a { position: relative; font-size: .95rem; font-weight: 600; color: var(--ink-soft); padding-block: 4px; }
+.main-nav a::after {
+  content: ""; position: absolute; inset-inline: 0; bottom: -2px; height: 2px; border-radius: 2px;
+  background: var(--accent-solid); transform: scaleX(0); transform-origin: center;
+  transition: transform .25s cubic-bezier(.2,.8,.2,1);
+}
 .main-nav a:hover { color: var(--ink); }
+.main-nav a:hover::after { transform: scaleX(1); }
 .header-actions { display: flex; align-items: center; gap: 10px; }
 .pill-btn { border: 1.5px solid var(--border-strong); border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: .85rem; display: flex; align-items: center; gap: 6px; }
 .pill-btn:hover { border-color: var(--accent-solid); color: var(--accent); }
@@ -131,7 +138,16 @@ html[lang="en"] .eyebrow { text-transform: uppercase; letter-spacing: .08em; fon
 @media (max-width: 900px) { .main-nav { display: none; } .header-actions .cta-btn { display: none; } }
 
 /* ============ Hero ============ */
-.hero { padding-block: 64px 40px; overflow: hidden; }
+.hero { padding-block: 64px 40px; overflow: hidden; position: relative; }
+.hero::before, .hero::after {
+  content: ""; position: absolute; z-index: -1; width: 46vw; height: 46vw; max-width: 520px; max-height: 520px;
+  border-radius: 50%; filter: blur(90px); opacity: .28; pointer-events: none;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+.hero::before { top: -10%; inset-inline-start: -8%; background: var(--c-sada); }
+.hero::after { bottom: -18%; inset-inline-end: -10%; background: var(--c-fahes); animation-delay: -9s; }
+@keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(6%, 8%) scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .hero::before, .hero::after { animation: none; } }
 .hero-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px; max-width: 780px; margin-inline: auto; }
 .hero-brandmark { width: 96px; height: auto; margin-bottom: -8px; filter: drop-shadow(0 10px 26px rgba(232,160,37,.3)); animation: brandmark-pulse 4s ease-in-out infinite; }
 @keyframes brandmark-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
@@ -259,8 +275,14 @@ html[dir="rtl"] .steps::before { background: repeating-linear-gradient(to left, 
 .waitlist-box { max-width: 640px; margin-inline: auto; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px 32px; box-shadow: var(--shadow-sm); }
 .waitlist-box h2 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); margin-bottom: 12px; }
 .waitlist-box > p { color: var(--ink-soft); margin-bottom: 26px; }
-.waitlist-form { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.waitlist-form input { flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 999px; border: 1.5px solid var(--border-strong); background: var(--surface-2); color: var(--ink); }
+.waitlist-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.waitlist-form input {
+  padding: 14px 18px; border-radius: 999px; border: 1.5px solid var(--border-strong);
+  background: var(--surface-2); color: var(--ink); transition: border-color .2s ease, box-shadow .2s ease;
+}
+.waitlist-form input:focus { border-color: var(--accent-solid); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-solid) 18%, transparent); outline: none; }
+.waitlist-form .btn { grid-column: 1 / -1; }
+@media (max-width: 560px) { .waitlist-form { grid-template-columns: 1fr; } }
 .waitlist-note { margin-top: 14px; font-size: .78rem; color: var(--ink-faint); }
 .waitlist-success { display: none; align-items: center; justify-content: center; gap: 8px; font-weight: 700; color: #2F8F4E; margin-top: 14px; }
 .waitlist-success.active { display: flex; }
