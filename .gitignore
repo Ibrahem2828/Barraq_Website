@@ -1,0 +1,3 @@
+data/waitlist.json
+data/*.tmp
+npm-debug.log*

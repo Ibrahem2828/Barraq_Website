@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الصفحة غير موجودة | براق</title>
+<meta name="description" content="تعذّر العثور على الصفحة المطلوبة في موقع براق.">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#0B0E1A">
+
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/logo/favicon-16.png">
+<link rel="apple-touch-icon" href="/assets/logo/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+
+<script>
+(function () {
+  var locale = (navigator.language || "ar").toLowerCase().indexOf("ar") === 0 ? "ar" : "en";
+  document.documentElement.lang = locale;
+  document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
+  try {
+    var theme = localStorage.getItem("baraq_theme");
+    if (theme === "dark" || theme === "light") document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {}
+})();
+</script>
+</head>
+<body class="not-found-page">
+<a href="#main" class="skip-link"><span class="lang-ar">تخطي إلى المحتوى</span><span class="lang-en" hidden>Skip to content</span></a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/ar/" id="homeBrand" aria-label="براق">
+      <img class="brand-logo" src="/assets/logo/icon-only.webp" alt="" width="67" height="34">
+      <span class="brand-name"><span class="lang-ar">براق</span><span class="lang-en" hidden>Baraq</span></span>
+    </a>
+    <div class="header-actions" style="margin-inline-start:auto">
+      <button class="pill-btn" id="notFoundLang" type="button" aria-label="Switch to English">EN</button>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="تبديل الوضع الليلي">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="not-found-main" id="main">
+  <div class="wrap">
+    <section class="not-found-card" id="notFoundCard" aria-labelledby="notFoundTitle">
+      <span class="not-found-code" aria-hidden="true">404</span>
+      <img class="not-found-character" src="/assets/characters/khota/alt.webp" alt="" width="210" height="210">
+
+      <div class="lang-ar">
+        <h1 id="notFoundTitle">يبدو أن هذه الخطوة خارج المسار</h1>
+        <p>الصفحة التي تبحث عنها غير موجودة أو ربما تغيّر عنوانها. لا تقلق، خُطى ستعيدك إلى الطريق الصحيح.</p>
+        <div class="not-found-actions">
+          <a class="btn btn-primary" href="/ar/">العودة إلى الرئيسية</a>
+          <a class="btn btn-ghost" href="/ar/#features">استكشف ميزات براق</a>
+        </div>
+      </div>
+
+      <div class="lang-en" hidden>
+        <h1 id="notFoundTitleEn">This step seems off the path</h1>
+        <p>The page you requested does not exist or may have moved. Khota can guide you back to the right place.</p>
+        <div class="not-found-actions">
+          <a class="btn btn-primary" href="/en/">Back to home</a>
+          <a class="btn btn-ghost" href="/en/#features">Explore Baraq features</a>
+        </div>
+      </div>
+
+      <code class="not-found-path" id="missingPath"></code>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  var langButton = document.getElementById("notFoundLang");
+  var brand = document.getElementById("homeBrand");
+  var path = document.getElementById("missingPath");
+  var card = document.getElementById("notFoundCard");
+
+  function setLanguage(locale) {
+    var isArabic = locale === "ar";
+    document.documentElement.lang = isArabic ? "ar" : "en";
+    document.documentElement.dir = isArabic ? "rtl" : "ltr";
+    document.title = isArabic ? "الصفحة غير موجودة | براق" : "Page not found | Baraq";
+    document.querySelectorAll(".lang-ar").forEach(function (el) { el.hidden = !isArabic; });
+    document.querySelectorAll(".lang-en").forEach(function (el) { el.hidden = isArabic; });
+    langButton.textContent = isArabic ? "EN" : "العربية";
+    langButton.setAttribute("aria-label", isArabic ? "Switch to English" : "التبديل إلى العربية");
+    brand.href = isArabic ? "/ar/" : "/en/";
+    card.setAttribute("aria-labelledby", isArabic ? "notFoundTitle" : "notFoundTitleEn");
+  }
+
+  setLanguage(document.documentElement.lang === "en" ? "en" : "ar");
+  langButton.addEventListener("click", function () {
+    setLanguage(document.documentElement.lang === "ar" ? "en" : "ar");
+  });
+  path.textContent = window.location.pathname;
+})();
+</script>
+<script src="/js/main.js"></script>
+</body>
+</html>

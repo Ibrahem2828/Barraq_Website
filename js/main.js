@@ -5,6 +5,16 @@
   var config = window.BARAQ_CONFIG || {};
   var lang = document.documentElement.getAttribute("lang") === "en" ? "en" : "ar";
 
+  // ---------- Header depth on scroll ----------
+  var siteHeader = document.querySelector(".site-header");
+  if (siteHeader) {
+    var updateHeader = function () {
+      siteHeader.classList.toggle("is-scrolled", window.scrollY > 12);
+    };
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+  }
+
   // ---------- Loading screen ----------
   // Hides once the window fully loads (fonts + images), with a hard cap so a
   // slow connection never traps a visitor behind it. On a fast/cached load
@@ -14,7 +24,7 @@
   var loader = document.getElementById("loadingScreen");
   if (loader) {
     var loadStart = (window.performance && performance.now) ? performance.now() : Date.now();
-    var minDisplay = reduceMotion ? 0 : 1400;
+    var minDisplay = reduceMotion ? 250 : 5200;
     var hideLoader = function () {
       if (loader.classList.contains("is-hidden")) return;
       var now = (window.performance && performance.now) ? performance.now() : Date.now();
@@ -25,12 +35,21 @@
       }, wait);
     };
     window.addEventListener("load", hideLoader);
-    window.setTimeout(hideLoader, 2500);
+    window.setTimeout(hideLoader, reduceMotion ? 500 : 7200);
   }
 
   // ---------- Theme toggle (persisted, defaults to system preference) ----------
   var themeBtn = document.getElementById("themeToggle");
   if (themeBtn) {
+    var updateThemeLabel = function () {
+      var current = document.documentElement.getAttribute("data-theme");
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var isDark = current ? current === "dark" : prefersDark;
+      themeBtn.setAttribute("aria-label", lang === "ar"
+        ? (isDark ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي")
+        : (isDark ? "Switch to light mode" : "Switch to dark mode"));
+    };
+    updateThemeLabel();
     themeBtn.addEventListener("click", function () {
       var root = document.documentElement;
       var current = root.getAttribute("data-theme");
@@ -39,6 +58,7 @@
       var next = effectiveDark ? "light" : "dark";
       root.setAttribute("data-theme", next);
       try { localStorage.setItem("baraq_theme", next); } catch (e) {}
+      updateThemeLabel();
     });
   }
 
@@ -69,7 +89,12 @@
       },
       { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
     );
-    reveals.forEach(function (el) { io.observe(el); });
+    reveals.forEach(function (el, index) {
+      // A tiny capped stagger gives grouped content a natural cadence
+      // without making visitors wait for long cascades.
+      el.style.setProperty("--reveal-delay", Math.min(index % 5, 4) * 55 + "ms");
+      io.observe(el);
+    });
   } else {
     reveals.forEach(function (el) { el.classList.add("in-view"); });
   }
@@ -260,10 +285,13 @@
       if (errorEl) errorEl.hidden = true;
 
       if (!config.API_BASE_URL) {
-        // No backend configured at all -- fall back to the old local-only
-        // demo behavior instead of silently failing.
-        document.getElementById("waitlistSuccess").classList.add("active");
-        form.reset();
+        // Never show a fake success when storage is not configured.
+        if (errorEl) {
+          errorEl.textContent = lang === "ar"
+            ? "قائمة الانتظار غير متاحة مؤقتًا. راسلنا عبر البريد وسنضيفك يدويًا."
+            : "The waitlist is temporarily unavailable. Email us and we'll add you manually.";
+          errorEl.hidden = false;
+        }
         return;
       }
 

@@ -1,10 +1,8 @@
 # Baraq marketing site
 
-A self-contained, static "coming soon" site for Baraq (براق) — no build step, no
-framework, no external JS libraries. Deploy by copying this folder as-is to
-any static host or the same VPS the rest of the platform runs on (behind
-Caddy/nginx, exactly like the ops guide's `HOST_PORT` pattern used for the
-other services — this one just needs a static file root, not a container).
+A self-contained "coming soon" site for Baraq (براق) with a tiny dependency-free
+Node server for the local waitlist. There is no build step, framework, external
+JavaScript library, database account, or third-party form service.
 
 ## Structure
 
@@ -12,13 +10,17 @@ other services — this one just needs a static file root, not a container).
 index.html          Thin client-side redirector -> /ar/ or /en/ by browser
                      language, with hreflang tags + noscript links so
                      crawlers and no-JS visitors still reach real content.
+404.html            Bilingual, responsive not-found page. Static hosting must
+                     serve this file with the HTTP 404 status.
 ar/index.html        Canonical Arabic page (RTL).
 en/index.html        Canonical English page (LTR).
 css/style.css        Shared stylesheet (design tokens + components + 3D tilt).
-js/config.js         The one thing to edit when the backend domain changes.
+js/config.js         Same-origin waitlist API path and readiness percentage.
 js/main.js           Loading screen, theme toggle, scroll-reveal, pseudo-3D
                       pointer tilt, the "which character are you" quiz, and
-                      the real waitlist form (calls the Django backend).
+                      the real waitlist form.
+server.js            Serves the site, custom 404, and local waitlist API.
+data/waitlist.json   Created automatically on first start; readable records.
 assets/characters/   Optimized WebP character art (see "Asset sourcing").
 assets/logo/         Logo marks + generated favicons.
 robots.txt, sitemap.xml
@@ -27,6 +29,14 @@ robots.txt, sitemap.xml
 Two real pages (not a client-side language toggle over one page) so each
 language is independently crawlable and indexable, with reciprocal
 `hreflang` tags.
+
+## Custom 404 on static hosting
+
+`404.html` is the site-wide bilingual not-found page and must be returned
+with the real HTTP `404` status. Hosts such as GitHub Pages and Netlify use
+the file automatically. For nginx, add `error_page 404 /404.html;` inside
+the site/server block. For Caddy, route error status 404 to `/404.html` in a
+`handle_errors` block while keeping the response status unchanged.
 
 ## Asset sourcing — real content, not placeholders
 
@@ -69,11 +79,10 @@ based on the theme. Two real bugs made this look broken:
 
 Fix: the header now uses a separate **icon-only crop** (`icon-only.webp`,
 gems with no text, auto-cropped from the transparent gap between the gem
-cluster and the wordmark) next to a plain `<span>براق</span>` text label —
-one asset, no theme-dependent swap, and the brand name is actually
-readable. The full icon+wordmark lockup (`assets/logo/wordmark.webp`) is
-still used at hero size, where the text is large enough to read, with a
-gentle pulse animation.
+cluster and the wordmark) next to a plain text label — one asset, no
+theme-dependent swap, and the brand name is actually readable. The hero
+uses the same clean icon plus live text, which also removes the white edge
+artifact that appeared inside the baked Arabic wordmark.
 
 ### Re-generating the optimized image assets
 
@@ -86,31 +95,22 @@ corners using the image's *actual* background color, not an assumed one —
 see the bug above for why that distinction matters; then resize + save as
 WebP).
 
-## Waitlist: real backend, not a demo
+## Waitlist: local readable storage
 
-The waitlist form posts to the Django backend's `apps/waitlist` app
-(`Baraaq_back/backend/apps/waitlist/`) — real Postgres storage, not a
-`.xlsx` file written directly by the request (concurrent writes to a
-shared spreadsheet aren't safe under multiple gunicorn workers). It
-collects **name + email**, and exposes a live subscriber count the site
-displays as an animated social-proof counter.
+Run `npm start` from this folder, then open `http://127.0.0.1:4173/ar/`.
+The form stores name, email, language, source, and join time in
+`data/waitlist.json`. Open that file with any text editor to inspect the
+records. Duplicate emails are not added twice.
 
-**Exporting to Excel**: Django admin -> Waitlist entries -> select rows (or
-"select all") -> action "Export selected as Excel" -> downloads a
-formatted `.xlsx` (bold header row, frozen top row, filter dropdowns,
-sized columns) with Name / Email / Locale / Source / Joined At. This is
-the "professional Excel export" deliverable, layered on top of the real
-database rather than replacing it.
+The server serializes writes and replaces the JSON file atomically, limits
+request size and repeated submissions, validates input, and keeps the entire
+`data/` directory inaccessible over HTTP. The live subscriber count reads
+from the same local file. `data/waitlist.json` is intentionally ignored by
+Git so real email addresses cannot be committed accidentally.
 
-`js/config.js` holds the one thing that needs to match the deployed
-backend: `API_BASE_URL`. The backend also needs this site's own origin
-added to `CORS_ALLOWED_ORIGINS` / `CSRF_TRUSTED_ORIGINS` (see
-`Baraaq_back/backend/.env.example`) — without that, the browser blocks the
-response even though the request itself reaches Django fine.
-
-If the backend is unreachable (not deployed yet, CORS misconfigured, ...)
-the form shows a friendly inline error instead of a fake "success", and the
-counter just stays hidden instead of showing a stale/zero number.
+For a VPS, run the Node process behind Caddy/nginx and set `HOST=0.0.0.0` plus
+the desired `PORT`. Do not deploy this folder through a plain static file
+server: static hosting cannot write waitlist records.
 
 ## Positioning: pre-launch, startup-backed, on purpose
 
@@ -137,8 +137,8 @@ languages, not just one spot.
 
 ## Performance
 
-No external JS libraries, no bundler. Total page weight (HTML+CSS+JS+all
-images) is roughly 1.2MB including the full-resolution wordmark and every
+No external JS libraries and no bundler. Total page weight (HTML+CSS+JS+all
+images) is roughly 1.2MB including the logo assets and every
 character's two poses — still far below the ~2.3MB original single-file
 artifact version (which embedded every image as base64, at lower quality).
 Google Fonts is the only external dependency (two font families,

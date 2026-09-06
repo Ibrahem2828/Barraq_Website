@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Baraq · براق — Your AI Companion for the Study Journey</title>
 <meta name="description" content="Baraq — an AI study companion with five AI characters helping Arabic-speaking students summarize, quiz, plan, analyze performance, and turn voice into text.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="Baraq — Innovation Youth Team">
 <link rel="canonical" href="https://baraqapp.com/en/">
 <link rel="alternate" hreflang="ar" href="https://baraqapp.com/ar/">
 <link rel="alternate" hreflang="en" href="https://baraqapp.com/en/">
@@ -16,7 +18,10 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="ar_AR">
 <meta property="og:url" content="https://baraqapp.com/en/">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:site_name" content="Baraq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Baraq — Your AI Companion for the Study Journey">
+<meta name="twitter:description" content="Summarize, quiz, plan, analyze performance, and turn voice into text with five AI study companions built for Arabic-speaking students.">
 <meta name="theme-color" content="#0B0E1A">
 
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/logo/favicon-32.png">
@@ -27,20 +32,44 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
-<link rel="preload" as="image" href="../assets/logo/wordmark.webp">
+<link rel="preload" as="image" href="../assets/logo/icon-only.webp">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "MobileApplication",
-  "name": "Baraq",
-  "alternateName": "براق",
-  "applicationCategory": "EducationalApplication",
-  "operatingSystem": "Android, iOS",
-  "inLanguage": ["ar", "en"],
-  "description": "An AI application that helps Arabic-speaking students with summarization, quizzes, study planning, performance analysis, and voice-to-text, through five AI characters: Fahes, Khota, Rasheed, Sada, and Kholasa.",
-  "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
-  "publisher": { "@type": "Organization", "name": "Innovation Youth Team", "email": "barraq.ai.team@gmail.com" }
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://baraqapp.com/#organization",
+      "name": "Baraq",
+      "alternateName": "براق",
+      "url": "https://baraqapp.com/",
+      "logo": "https://baraqapp.com/assets/logo/icon-512.png",
+      "email": "barraq.ai.team@gmail.com"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://baraqapp.com/#website",
+      "url": "https://baraqapp.com/",
+      "name": "Baraq",
+      "alternateName": "براق",
+      "inLanguage": ["en", "ar"],
+      "publisher": { "@id": "https://baraqapp.com/#organization" }
+    },
+    {
+      "@type": "MobileApplication",
+      "@id": "https://baraqapp.com/#app",
+      "name": "Baraq",
+      "alternateName": "براق",
+      "url": "https://baraqapp.com/en/",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Android, iOS",
+      "inLanguage": ["ar", "en"],
+      "description": "An AI application that helps Arabic-speaking students with summarization, quizzes, study planning, performance analysis, and voice-to-text through five AI characters.",
+      "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
+      "publisher": { "@id": "https://baraqapp.com/#organization" }
+    }
+  ]
 }
 </script>
 
@@ -64,7 +93,7 @@
     <span class="smoke smoke-kholasa"></span>
   </div>
   <div class="loading-mark">
-    <img class="loading-logo" src="../assets/logo/icon-source.webp" alt="" width="96" height="96">
+    <img class="loading-logo" src="../assets/logo/icon-only.webp" alt="" width="168" height="96">
     <span class="loading-name">Baraq</span>
   </div>
   <div class="loading-bar"></div>
@@ -78,9 +107,9 @@
       <img class="brand-logo" src="../assets/logo/icon-only.webp" alt="" width="67" height="34">
       <span class="brand-name">Baraq</span>
     </a>
-    <nav class="main-nav" aria-label="Primary">
-      <a href="#characters">Characters</a>
+    <nav class="main-nav" aria-label="Primary navigation">
       <a href="#how">How it works</a>
+      <a href="#characters">Characters</a>
       <a href="#features">Features</a>
       <a href="#quiz">Find your match</a>
       <a href="#about">About</a>
@@ -100,7 +129,10 @@
 
   <section class="hero" id="top">
     <div class="wrap hero-inner">
-      <img class="hero-brandmark" src="../assets/logo/wordmark.webp" alt="Baraq" width="96" height="96" fetchpriority="high">
+      <div class="hero-brandmark" aria-label="Baraq">
+        <img src="../assets/logo/icon-only.webp" alt="" width="168" height="96" fetchpriority="high">
+        <span>Baraq</span>
+      </div>
       <span class="eyebrow"><span class="eyebrow-dot"></span>A startup backed by the Innovation Youth Team</span>
       <h1>Your AI companion to <span class="hl">understand</span> your lessons, not just memorize them</h1>
       <p class="lede">Baraq turns your lectures, files and voice recordings into a trustworthy summary, a quiz built on your own material, and a study plan that fits your time — powered by five AI characters working together for you.</p>
@@ -109,9 +141,9 @@
         <a class="btn btn-ghost" href="#characters">Meet the characters</a>
       </div>
       <div class="hero-tags">
-        <span class="tag">📘 High-school students</span>
-        <span class="tag">🎓 University students</span>
-        <span class="tag">🕋 Arabic-first, not translated</span>
+        <span class="tag">High-school students</span>
+        <span class="tag">University students</span>
+        <span class="tag">Arabic-first, not translated</span>
       </div>
 
       <div class="constellation" aria-hidden="false">
@@ -280,7 +312,7 @@
         <div class="feat-row reveal"><div class="feat-num">04</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-khota)"></span>Smart study planning<span class="feat-owner" style="--feat-color:var(--c-khota)">Khota</span></h3><p>A balanced daily and weekly plan built around your available time and each subject's difficulty — never generic.</p></div></div>
         <div class="feat-row reveal"><div class="feat-num">05</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-rasheed)"></span>Performance analysis &amp; practical tips<span class="feat-owner" style="--feat-color:var(--c-rasheed)">Rasheed</span></h3><p>Track your progress over time, with weekly recommendations on what truly deserves focus next.</p></div></div>
         <div class="feat-row reveal"><div class="feat-num">06</div><div class="feat-body"><h3><span class="feat-tab"></span>Flexible packages &amp; credits<span class="feat-owner">Platform</span></h3><p>Usage-based credits and packages instead of a rigid subscription, so Baraq stays accessible at every usage level.</p></div></div>
-        <div class="feat-row reveal"><div class="feat-num">07</div><div class="feat-body"><h3><span class="feat-tab"></span>Full admin dashboard<span class="feat-owner">Platform</span></h3><p>User and subscription management with usage monitoring, ensuring a stable, reliable experience behind the scenes.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">07</div><div class="feat-body"><h3><span class="feat-tab"></span>A stable experience behind the scenes<span class="feat-owner">Platform</span></h3><p>Continuous service and usage monitoring keeps your study experience stable and dependable.</p></div></div>
         <div class="feat-row reveal"><div class="feat-num">08</div><div class="feat-body"><h3><span class="feat-tab"></span>Arabic-first, never an afterthought<span class="feat-owner">Platform</span></h3><p>An RTL experience designed from the ground up for the Arabic-speaking student, from content to analysis.</p></div></div>
       </div>
     </div>

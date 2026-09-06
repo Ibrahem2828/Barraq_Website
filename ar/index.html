@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>براق · Baraq — رفيقك الذكي في رحلة الدراسة</title>
 <meta name="description" content="براق | Baraq — رفيق دراسة ذكي بخمس شخصيات ذكاء اصطناعي تساعد الطلاب العرب على التلخيص والاختبار والتخطيط وتحليل الأداء وتحويل الصوت إلى نص.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="براق — فريق الشباب للابتكار">
 <link rel="canonical" href="https://baraqapp.com/ar/">
 <link rel="alternate" hreflang="ar" href="https://baraqapp.com/ar/">
 <link rel="alternate" hreflang="en" href="https://baraqapp.com/en/">
@@ -16,7 +18,10 @@
 <meta property="og:locale" content="ar_AR">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:url" content="https://baraqapp.com/ar/">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:site_name" content="براق · Baraq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="براق — رفيقك الذكي في رحلة الدراسة">
+<meta name="twitter:description" content="لخّص واختبر فهمك وخطط لدراستك وحلل أداءك وحوّل الصوت إلى نص مع خمس شخصيات ذكية صُممت للطالب العربي.">
 <meta name="theme-color" content="#0B0E1A">
 
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/logo/favicon-32.png">
@@ -27,20 +32,44 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
-<link rel="preload" as="image" href="../assets/logo/wordmark.webp">
+<link rel="preload" as="image" href="../assets/logo/icon-only.webp">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "MobileApplication",
-  "name": "براق (Baraq)",
-  "alternateName": "Baraq",
-  "applicationCategory": "EducationalApplication",
-  "operatingSystem": "Android, iOS",
-  "inLanguage": ["ar", "en"],
-  "description": "تطبيق ذكاء اصطناعي يرافق الطلاب العرب في التلخيص والاختبارات والتخطيط الدراسي وتحليل الأداء وتحويل الصوت إلى نص، عبر خمس شخصيات ذكية: فاحص، خُطى، رشيد، صدى، وخُلاصة.",
-  "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
-  "publisher": { "@type": "Organization", "name": "فريق الشباب للابتكار", "email": "barraq.ai.team@gmail.com" }
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://baraqapp.com/#organization",
+      "name": "براق",
+      "alternateName": "Baraq",
+      "url": "https://baraqapp.com/",
+      "logo": "https://baraqapp.com/assets/logo/icon-512.png",
+      "email": "barraq.ai.team@gmail.com"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://baraqapp.com/#website",
+      "url": "https://baraqapp.com/",
+      "name": "براق",
+      "alternateName": "Baraq",
+      "inLanguage": ["ar", "en"],
+      "publisher": { "@id": "https://baraqapp.com/#organization" }
+    },
+    {
+      "@type": "MobileApplication",
+      "@id": "https://baraqapp.com/#app",
+      "name": "براق",
+      "alternateName": "Baraq",
+      "url": "https://baraqapp.com/ar/",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Android, iOS",
+      "inLanguage": ["ar", "en"],
+      "description": "تطبيق ذكاء اصطناعي يرافق الطلاب العرب في التلخيص والاختبارات والتخطيط الدراسي وتحليل الأداء وتحويل الصوت إلى نص عبر خمس شخصيات ذكية.",
+      "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
+      "publisher": { "@id": "https://baraqapp.com/#organization" }
+    }
+  ]
 }
 </script>
 
@@ -64,7 +93,7 @@
     <span class="smoke smoke-kholasa"></span>
   </div>
   <div class="loading-mark">
-    <img class="loading-logo" src="../assets/logo/icon-source.webp" alt="" width="96" height="96">
+    <img class="loading-logo" src="../assets/logo/icon-only.webp" alt="" width="168" height="96">
     <span class="loading-name">براق</span>
   </div>
   <div class="loading-bar"></div>
@@ -79,8 +108,8 @@
       <span class="brand-name">براق</span>
     </a>
     <nav class="main-nav" aria-label="التنقل الرئيسي">
-      <a href="#characters">الشخصيات</a>
       <a href="#how">كيف يعمل</a>
+      <a href="#characters">الشخصيات</a>
       <a href="#features">الميزات</a>
       <a href="#quiz">اختبر نفسك</a>
       <a href="#about">عن الفريق</a>
@@ -100,7 +129,10 @@
 
   <section class="hero" id="top">
     <div class="wrap hero-inner">
-      <img class="hero-brandmark" src="../assets/logo/wordmark.webp" alt="براق" width="96" height="96" fetchpriority="high">
+      <div class="hero-brandmark" aria-label="براق">
+        <img src="../assets/logo/icon-only.webp" alt="" width="168" height="96" fetchpriority="high">
+        <span>براق</span>
+      </div>
       <span class="eyebrow"><span class="eyebrow-dot"></span>شركة ناشئة بدعم من فريق الشباب للابتكار</span>
       <h1>رفيقك الذكي لفهم دروسك، <span class="hl">لا لحفظها</span></h1>
       <p class="lede">براق يحوّل محاضراتك وملفاتك ومقاطعك الصوتية إلى ملخص موثوق، اختبار مبني على محتواك فعلًا، وخطة مراجعة تناسب وقتك — بخمس شخصيات ذكاء اصطناعي تعمل معًا لأجلك.</p>
@@ -109,9 +141,9 @@
         <a class="btn btn-ghost" href="#characters">تعرّف على الشخصيات</a>
       </div>
       <div class="hero-tags">
-        <span class="tag">📘 طلاب الثانوية</span>
-        <span class="tag">🎓 طلاب الجامعات</span>
-        <span class="tag">🕋 مصمم أصلًا للعربية</span>
+        <span class="tag">طلاب الثانوية</span>
+        <span class="tag">طلاب الجامعات</span>
+        <span class="tag">مصمم أصلًا للعربية</span>
       </div>
 
       <div class="constellation" aria-hidden="false">
@@ -280,7 +312,7 @@
         <div class="feat-row reveal"><div class="feat-num">04</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-khota)"></span>تخطيط دراسي ذكي<span class="feat-owner" style="--feat-color:var(--c-khota)">خُطى</span></h3><p>خطة يومية وأسبوعية متوازنة تُبنى حسب وقتك المتاح وصعوبة كل مادة، لا خطة عامة جاهزة.</p></div></div>
         <div class="feat-row reveal"><div class="feat-num">05</div><div class="feat-body"><h3><span class="feat-tab" style="--feat-color:var(--c-rasheed)"></span>تحليل أداء وتوصيات عملية<span class="feat-owner" style="--feat-color:var(--c-rasheed)">رشيد</span></h3><p>تتبع تقدمك عبر الزمن، وتوصيات أسبوعية بما يستحق تركيزك التالي فعليًا.</p></div></div>
         <div class="feat-row reveal"><div class="feat-num">06</div><div class="feat-body"><h3><span class="feat-tab"></span>نظام باقات ورصيد مرن<span class="feat-owner">المنصّة</span></h3><p>تحكّم بالاستخدام عبر رصيد وباقات بدل اشتراك جامد، حتى يبقى براق متاحًا لكل مستوى استخدام.</p></div></div>
-        <div class="feat-row reveal"><div class="feat-num">07</div><div class="feat-body"><h3><span class="feat-tab"></span>لوحة تحكم إدارية كاملة<span class="feat-owner">المنصّة</span></h3><p>إدارة المستخدمين والاشتراكات ومتابعة الاستخدام، لضمان تجربة مستقرة وموثوقة خلف الكواليس.</p></div></div>
+        <div class="feat-row reveal"><div class="feat-num">07</div><div class="feat-body"><h3><span class="feat-tab"></span>تجربة مستقرة من خلف الكواليس<span class="feat-owner">المنصّة</span></h3><p>إدارة ومراقبة مستمرة للاستخدام والخدمات، حتى تبقى تجربتك الدراسية مستقرة وموثوقة.</p></div></div>
         <div class="feat-row reveal"><div class="feat-num">08</div><div class="feat-body"><h3><span class="feat-tab"></span>لغة عربية أصيلة، لا ترجمة لاحقة<span class="feat-owner">المنصّة</span></h3><p>تجربة ودعم RTL مصمَّمان من الأساس للطالب العربي، من المحتوى إلى التحليل.</p></div></div>
       </div>
     </div>

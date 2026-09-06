@@ -1,0 +1,14 @@
+{
+  "name": "baraq-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Baraq bilingual marketing site and local waitlist service",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check js/main.js && node --check js/config.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
