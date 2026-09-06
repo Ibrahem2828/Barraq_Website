@@ -130,7 +130,7 @@
     applyTilt(el, el.classList.contains("orb") ? 10 : 14);
   });
 
-  // ---------- "Which Baraq character are you?" quiz ----------
+  // ---------- "Which Barraq character are you?" quiz ----------
   var quizBox = document.getElementById("quizBox");
   if (quizBox) {
     var scores = { fahes: 0, khota: 0, rasheed: 0, sada: 0, kholasa: 0 };
@@ -192,8 +192,8 @@
         var canonical = document.querySelector('link[rel="canonical"]');
         var url = canonical ? canonical.href : (window.location.origin + "/" + lang + "/");
         return lang === "ar"
-          ? "أنا " + name + " في براق! " + desc + " جرّبه معي: " + url
-          : "I'm " + name + " on Baraq! " + desc + " Try it with me: " + url;
+          ? "أنا " + name + " في برّاق! " + desc + " جرّبه معي: " + url
+          : "I'm " + name + " on Barraq! " + desc + " Try it with me: " + url;
       }
 
       function announce(text, isSuccess) {
@@ -241,8 +241,8 @@
   var countEl = document.getElementById("waitlistCount");
   function labelFor(n) {
     return lang === "ar"
-      ? (n === 1 ? "شخص واحد بالفعل بالقائمة" : n + " شخصاً بالفعل بالقائمة")
-      : n + (n === 1 ? " person" : " people") + " already on the list";
+      ? (n === 1 ? "قبلك شخص واحد في قائمة الانتظار" : "قبلك " + n + " شخصًا في قائمة الانتظار")
+      : n + (n === 1 ? " person is" : " people are") + " ahead of you on the waitlist";
   }
   function renderCount(n) {
     if (!countEl) return;
@@ -311,7 +311,13 @@
           return r.json().then(function (body) { return Promise.reject(body); }).catch(function () { return Promise.reject({}); });
         })
         .then(function (data) {
-          document.getElementById("waitlistSuccess").classList.add("active");
+          var successEl = document.getElementById("waitlistSuccess");
+          if (successEl) {
+            successEl.textContent = data.created
+              ? (lang === "ar" ? "تم تسجيلك بنجاح. أنت رقم " + data.count + " في قائمة الانتظار." : "You're in! You're number " + data.count + " on the waitlist.")
+              : (lang === "ar" ? "بريدك مسجّل بالفعل في قائمة الانتظار." : "This email is already on the waitlist.");
+            successEl.classList.add("active");
+          }
           form.reset();
           if (typeof data.count === "number") renderCount(data.count);
         })
@@ -329,3 +335,4 @@
     });
   }
 })();
+

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>الصفحة غير موجودة | براق</title>
-<meta name="description" content="تعذّر العثور على الصفحة المطلوبة في موقع براق.">
+<title>الصفحة غير موجودة | برّاق</title>
+<meta name="description" content="تعذّر العثور على الصفحة المطلوبة في موقع برّاق.">
 <meta name="robots" content="noindex, follow">
 <meta name="theme-color" content="#0B0E1A">
 
@@ -33,9 +33,9 @@
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="/ar/" id="homeBrand" aria-label="براق">
+    <a class="brand" href="/ar/" id="homeBrand" aria-label="برّاق">
       <img class="brand-logo" src="/assets/logo/icon-only.webp" alt="" width="67" height="34">
-      <span class="brand-name"><span class="lang-ar">براق</span><span class="lang-en" hidden>Baraq</span></span>
+      <span class="brand-name"><span class="lang-ar">برّاق</span><span class="lang-en" hidden>Barraq</span></span>
     </a>
     <div class="header-actions" style="margin-inline-start:auto">
       <button class="pill-btn" id="notFoundLang" type="button" aria-label="Switch to English">EN</button>
@@ -58,7 +58,7 @@
         <p>الصفحة التي تبحث عنها غير موجودة أو ربما تغيّر عنوانها. لا تقلق، خُطى ستعيدك إلى الطريق الصحيح.</p>
         <div class="not-found-actions">
           <a class="btn btn-primary" href="/ar/">العودة إلى الرئيسية</a>
-          <a class="btn btn-ghost" href="/ar/#features">استكشف ميزات براق</a>
+          <a class="btn btn-ghost" href="/ar/#features">استكشف ميزات برّاق</a>
         </div>
       </div>
 
@@ -67,7 +67,7 @@
         <p>The page you requested does not exist or may have moved. Khota can guide you back to the right place.</p>
         <div class="not-found-actions">
           <a class="btn btn-primary" href="/en/">Back to home</a>
-          <a class="btn btn-ghost" href="/en/#features">Explore Baraq features</a>
+          <a class="btn btn-ghost" href="/en/#features">Explore Barraq features</a>
         </div>
       </div>
 
@@ -87,7 +87,7 @@
     var isArabic = locale === "ar";
     document.documentElement.lang = isArabic ? "ar" : "en";
     document.documentElement.dir = isArabic ? "rtl" : "ltr";
-    document.title = isArabic ? "الصفحة غير موجودة | براق" : "Page not found | Baraq";
+    document.title = isArabic ? "الصفحة غير موجودة | برّاق" : "Page not found | Barraq";
     document.querySelectorAll(".lang-ar").forEach(function (el) { el.hidden = !isArabic; });
     document.querySelectorAll(".lang-en").forEach(function (el) { el.hidden = isArabic; });
     langButton.textContent = isArabic ? "EN" : "العربية";
@@ -106,3 +106,4 @@
 <script src="/js/main.js"></script>
 </body>
 </html>
+

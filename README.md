@@ -1,6 +1,6 @@
-# Baraq marketing site
+# Barraq marketing site
 
-A self-contained "coming soon" site for Baraq (براق) with a tiny dependency-free
+A self-contained "coming soon" site for Barraq (برّاق) with a tiny dependency-free
 Node server for the local waitlist. There is no build step, framework, external
 JavaScript library, database account, or third-party form service.
 
@@ -95,18 +95,35 @@ corners using the image's *actual* background color, not an assumed one —
 see the bug above for why that distinction matters; then resize + save as
 WebP).
 
-## Waitlist: local readable storage
+## Waitlist: private, readable storage
 
 Run `npm start` from this folder, then open `http://127.0.0.1:4173/ar/`.
 The form stores name, email, language, source, and join time in
-`data/waitlist.json`. Open that file with any text editor to inspect the
-records. Duplicate emails are not added twice.
+`data/waitlist.json`. Duplicate emails are not added twice. The public site
+shows only the aggregate waitlist count; names and email addresses are never
+exposed publicly.
 
 The server serializes writes and replaces the JSON file atomically, limits
 request size and repeated submissions, validates input, and keeps the entire
 `data/` directory inaccessible over HTTP. The live subscriber count reads
 from the same local file. `data/waitlist.json` is intentionally ignored by
 Git so real email addresses cannot be committed accidentally.
+
+### Owner-only viewer and CSV export
+
+Set a private username and a long, unique password before starting the server:
+
+```powershell
+$env:WAITLIST_ADMIN_USERNAME="owner"
+$env:WAITLIST_ADMIN_PASSWORD="use-a-long-random-password-here"
+npm start
+```
+
+Then open `http://127.0.0.1:4173/admin/waitlist`. The browser requests those
+credentials and displays the records with a CSV download button. Without both
+environment variables, that URL deliberately returns 404. Do not put these
+secrets in Git or JavaScript files. In production, set them in the server or
+hosting environment and use HTTPS.
 
 For a VPS, run the Node process behind Caddy/nginx and set `HOST=0.0.0.0` plus
 the desired `PORT`. Do not deploy this folder through a plain static file

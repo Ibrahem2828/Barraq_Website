@@ -1,5 +1,5 @@
-/* Baraq marketing site — shared stylesheet for /ar/ and /en/.
-   Design tokens extracted from the real Baraq brand assets (character
+/* Barraq marketing site — shared stylesheet for /ar/ and /en/.
+   Design tokens extracted from the real Barraq brand assets (character
    renders + logo), not guessed: see README.md for the source mapping. */
 
 :root {
@@ -550,3 +550,4 @@ html[dir="rtl"] .steps::before { background: repeating-linear-gradient(to left, 
   .site-header, .faq-item { transition: none; }
   .not-found-card::before, .not-found-card::after, .not-found-character { animation: none; }
 }
+
