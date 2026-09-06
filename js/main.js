@@ -239,6 +239,7 @@
 
   // ---------- Waitlist counter (social proof) ----------
   var countEl = document.getElementById("waitlistCount");
+  var waitlistApiUrl = config.WAITLIST_API_URL || "";
   function labelFor(n) {
     return lang === "ar"
       ? (n === 1 ? "قبلك شخص واحد في قائمة الانتظار" : "قبلك " + n + " شخصًا في قائمة الانتظار")
@@ -265,10 +266,13 @@
     }
     requestAnimationFrame(tick);
   }
-  if (countEl && config.API_BASE_URL) {
-    fetch(config.API_BASE_URL + "/waitlist/count/", { headers: { Accept: "application/json" } })
+  function apiUrl(action) {
+    return waitlistApiUrl + (waitlistApiUrl.indexOf("?") === -1 ? "?" : "&") + "action=" + encodeURIComponent(action);
+  }
+  if (countEl && waitlistApiUrl) {
+    fetch(apiUrl("count"), { headers: { Accept: "application/json" } })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
-      .then(function (data) { renderCount(Number(data.count) || 0); })
+      .then(function (data) { if (!data.ok) return Promise.reject(data); renderCount(Number(data.count) || 0); })
       .catch(function () { countEl.hidden = true; });
   }
 
@@ -284,7 +288,7 @@
       var errorEl = document.getElementById("waitlistError");
       if (errorEl) errorEl.hidden = true;
 
-      if (!config.API_BASE_URL) {
+      if (!waitlistApiUrl) {
         // Never show a fake success when storage is not configured.
         if (errorEl) {
           errorEl.textContent = lang === "ar"
@@ -296,18 +300,16 @@
       }
 
       if (submitBtn) submitBtn.disabled = true;
-      fetch(config.API_BASE_URL + "/waitlist/", {
+      fetch(apiUrl("join"), {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          email: emailInput.value.trim(),
-          full_name: nameInput ? nameInput.value.trim() : "",
-          locale: lang,
-          company: honeypot ? honeypot.value : ""
-        })
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", Accept: "application/json" },
+        body: new URLSearchParams({
+          email: emailInput.value.trim(), full_name: nameInput ? nameInput.value.trim() : "",
+          locale: lang, company: honeypot ? honeypot.value : ""
+        }).toString()
       })
         .then(function (r) {
-          if (r.ok) return r.json();
+          if (r.ok) return r.json().then(function (data) { return data.ok ? data : Promise.reject(data); });
           return r.json().then(function (body) { return Promise.reject(body); }).catch(function () { return Promise.reject({}); });
         })
         .then(function (data) {

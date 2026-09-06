@@ -125,6 +125,22 @@ environment variables, that URL deliberately returns 404. Do not put these
 secrets in Git or JavaScript files. In production, set them in the server or
 hosting environment and use HTTPS.
 
+## Google Sheets deployment
+
+For static hosting, use the supplied [Apps Script endpoint](apps-script/Code.gs)
+instead of the local Node service. In Apps Script project settings, create these
+two Script Properties exactly (the property names are not the values):
+
+```
+SPREADSHEET_ID = <the ID from the Sheet URL>
+SHEET_NAME = Waitlist
+```
+
+Paste `apps-script/Code.gs` into the Apps Script editor, deploy a **new version**
+as a Web app that executes as the Barraq owner, and allow anonymous visitors to
+access the endpoint. The Sheet itself must remain Restricted. Update
+`WAITLIST_API_URL` in `js/config.js` only with the resulting `/exec` URL.
+
 For a VPS, run the Node process behind Caddy/nginx and set `HOST=0.0.0.0` plus
 the desired `PORT`. Do not deploy this folder through a plain static file
 server: static hosting cannot write waitlist records.
