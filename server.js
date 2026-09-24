@@ -91,8 +91,8 @@ function escapeHtml(value) {
 function escapeCsv(value) { return `"${String(value ?? "").replaceAll('"', '""')}"`; }
 
 function renderAdminPage() {
-  const rows = entries.slice().reverse().map((entry, index) => `<tr><td>${entries.length - index}</td><td>${escapeHtml(entry.full_name)}</td><td><a href="mailto:${escapeHtml(entry.email)}">${escapeHtml(entry.email)}</a></td><td>${escapeHtml(entry.locale)}</td><td>${escapeHtml(entry.source)}</td><td>${escapeHtml(entry.joined_at)}</td></tr>`).join("");
-  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Barraq | قائمة الانتظار الخاصة</title><style>body{margin:0;background:#080d20;color:#edf1ff;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1100px;margin:48px auto;padding:0 20px}h1{margin:0 0 6px}.card{background:#121a34;border:1px solid #2c3965;border-radius:18px;padding:24px;overflow:auto}.meta{color:#bdc8eb;margin:0 0 24px}.download{display:inline-block;margin-bottom:18px;padding:10px 16px;border-radius:10px;background:#f5b947;color:#17101f;text-decoration:none;font-weight:700}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px;text-align:right;border-bottom:1px solid #2c3965}th{color:#f5c86c}a{color:#a9c8ff}.empty{color:#bdc8eb}</style></head><body><main><h1>قائمة انتظار برّاق الخاصة</h1><p class="meta">${entries.length} سجلًا محفوظًا محليًا. هذه الصفحة لا تُفهرس ولا تظهر بدون بيانات الدخول.</p><section class="card"><a class="download" href="/admin/waitlist.csv">تنزيل CSV</a>${rows ? `<table><thead><tr><th>#</th><th>الاسم</th><th>البريد الإلكتروني</th><th>اللغة</th><th>المصدر</th><th>وقت الانضمام (UTC)</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="empty">لا توجد طلبات مسجلة بعد.</p>'}</section></main></body></html>`;
+  const rows = entries.slice().reverse().map((entry, index) => `<tr><td>${entries.length - index}</td><td>${escapeHtml(entry.full_name)}</td><td><a href="mailto:${escapeHtml(entry.email)}">${escapeHtml(entry.email)}</a></td><td dir="ltr">${entry.phone ? `<a href="https://wa.me/${escapeHtml(entry.phone.replace(/^\+/, ""))}" rel="noopener noreferrer" target="_blank">${escapeHtml(entry.phone)}</a>` : ""}</td><td>${escapeHtml(entry.locale)}</td><td>${escapeHtml(entry.source)}</td><td>${escapeHtml(entry.joined_at)}</td></tr>`).join("");
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Barraq | قائمة الانتظار الخاصة</title><style>body{margin:0;background:#080d20;color:#edf1ff;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1100px;margin:48px auto;padding:0 20px}h1{margin:0 0 6px}.card{background:#121a34;border:1px solid #2c3965;border-radius:18px;padding:24px;overflow:auto}.meta{color:#bdc8eb;margin:0 0 24px}.download{display:inline-block;margin-bottom:18px;padding:10px 16px;border-radius:10px;background:#f5b947;color:#17101f;text-decoration:none;font-weight:700}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px;text-align:right;border-bottom:1px solid #2c3965}th{color:#f5c86c}a{color:#a9c8ff}.empty{color:#bdc8eb}</style></head><body><main><h1>قائمة انتظار برّاق الخاصة</h1><p class="meta">${entries.length} سجلًا محفوظًا محليًا. هذه الصفحة لا تُفهرس ولا تظهر بدون بيانات الدخول.</p><section class="card"><a class="download" href="/admin/waitlist.csv">تنزيل CSV</a>${rows ? `<table><thead><tr><th>#</th><th>الاسم</th><th>البريد الإلكتروني</th><th>واتساب</th><th>اللغة</th><th>المصدر</th><th>وقت الانضمام (UTC)</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="empty">لا توجد طلبات مسجلة بعد.</p>'}</section></main></body></html>`;
 }
 
 async function handleAdmin(request, response, pathname) {
@@ -101,7 +101,8 @@ async function handleAdmin(request, response, pathname) {
   if (!hasAdminAccess(request)) { sendText(response, 401, "Authentication required", "text/plain; charset=utf-8", { "WWW-Authenticate": 'Basic realm="Barraq owner area", charset="UTF-8"' }); return true; }
   if (request.method !== "GET" && request.method !== "HEAD") { sendJson(response, 405, { error: "Method not allowed" }); return true; }
   if (pathname === "/admin/waitlist.csv") {
-    const csv = ["position,full_name,email,locale,source,joined_at", ...entries.map((entry, index) => [entries.length - index, entry.full_name, entry.email, entry.locale, entry.source, entry.joined_at].map(escapeCsv).join(","))].join("\n");
+    // "whatsapp" is the last column so existing CSV consumers keep their column order.
+    const csv = ["position,full_name,email,locale,source,joined_at,whatsapp", ...entries.map((entry, index) => [entries.length - index, entry.full_name, entry.email, entry.locale, entry.source, entry.joined_at, entry.phone || ""].map(escapeCsv).join(","))].join("\n");
     if (request.method === "HEAD") response.writeHead(200, { "Content-Type": "text/csv; charset=utf-8", "Cache-Control": "no-store" }).end();
     else sendText(response, 200, `\uFEFF${csv}\n`, "text/csv; charset=utf-8", { "Content-Disposition": 'attachment; filename="barraq-waitlist.csv"' });
     return true;
@@ -140,6 +141,20 @@ function readJsonBody(request) {
 
 function isValidEmail(email) {
   return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Must stay in sync with normalizePhone() in js/main.js and apps-script/Code.gs.
+function normalizePhone(value) {
+  let cleaned = String(value || "")
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0))
+    .replace(/[\s\-().‎‏‪-‮]/g, "");
+  if (cleaned.startsWith("00")) cleaned = `+${cleaned.slice(2)}`;
+  return cleaned;
+}
+
+function isValidPhone(phone) {
+  return /^\+?[0-9]{8,15}$/.test(phone);
 }
 
 function isRateLimited(request) {
@@ -186,15 +201,29 @@ async function handleWaitlist(request, response, pathname) {
       sendJson(response, 400, { error: "Please provide a valid name and email address." });
       return true;
     }
+    const phone = normalizePhone(payload.phone);
+    if (phone && !isValidPhone(phone)) {
+      sendJson(response, 400, { error: "Please provide a valid WhatsApp number." });
+      return true;
+    }
 
     const operation = writeQueue.then(async () => {
       const existing = entries.find((entry) => entry.email === email);
-      if (existing) return { created: false, count: entries.length };
+      if (existing) {
+        // Fill a missing number for someone already on the list; never overwrite.
+        if (phone && !existing.phone) {
+          const nextEntries = entries.map((entry) => (entry === existing ? { ...entry, phone } : entry));
+          await persistEntries(nextEntries);
+          entries = nextEntries;
+        }
+        return { created: false, count: entries.length };
+      }
 
       const nextEntry = {
         id: randomUUID(),
         full_name: fullName,
         email,
+        phone,
         locale,
         source: "website",
         joined_at: new Date().toISOString()

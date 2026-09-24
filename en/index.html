@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/style.css?v=waitlist-phone-20260923">
 <link rel="preload" as="image" href="../assets/logo/icon-only.webp">
 
 <script type="application/ld+json">
@@ -382,6 +382,8 @@
           <input type="text" id="waitlistName" required placeholder="Your full name" autocomplete="name">
           <label class="sr-only" for="waitlistEmail">Email</label>
           <input type="email" id="waitlistEmail" required placeholder="you@example.com" autocomplete="email">
+          <label class="sr-only" for="waitlistPhone">WhatsApp number (optional)</label>
+          <input type="tel" id="waitlistPhone" class="waitlist-phone" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="24" placeholder="WhatsApp number (optional) — with country code">
           <span class="sr-only" aria-hidden="true">
             <label for="waitlistCompany">Leave this blank</label>
             <input type="text" id="waitlistCompany" tabindex="-1" autocomplete="off">
@@ -390,7 +392,7 @@
         </form>
         <div class="waitlist-success" id="waitlistSuccess" role="status" aria-live="polite">✓ Done! We'll be in touch soon.</div>
         <p class="waitlist-error" id="waitlistError" hidden></p>
-        <p class="waitlist-note">Your email is stored in a private waitlist managed by the Barraq team, used only to notify you when early access opens. See our <a href="privacy/">privacy policy</a>.</p>
+        <p class="waitlist-note">Your email (and WhatsApp number, if you add one) is stored in a private waitlist managed by the Barraq team, used only to notify you when early access opens. See our <a href="privacy/">privacy policy</a>.</p>
       </div>
     </div>
   </section>
@@ -421,8 +423,8 @@ window.BARAQ_QUIZ_DATA = {
   kholasa: { name: 'Kholasa', desc: 'You want just the essence, no filler — quick summaries and flashcards are your way — Kholasa is you.', img: '../assets/characters/kholasa/full.webp' }
 };
 </script>
-<script src="../js/config.js?v=google-sheets-20260906"></script>
-<script src="../js/main.js?v=google-sheets-20260906"></script>
+<script src="../js/config.js?v=waitlist-phone-20260923"></script>
+<script src="../js/main.js?v=waitlist-phone-20260923"></script>
 </body>
 </html>
 

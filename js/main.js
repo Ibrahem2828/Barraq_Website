@@ -277,16 +277,40 @@
   }
 
   // ---------- Waitlist form ----------
+  // Must stay in sync with normalizePhone() in apps-script/Code.gs and server.js.
+  function normalizePhone(value) {
+    var cleaned = String(value || "")
+      .replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
+      .replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
+      .replace(/[\s\-().‎‏‪-‮]/g, "");
+    if (cleaned.indexOf("00") === 0) cleaned = "+" + cleaned.slice(2);
+    return cleaned;
+  }
+  function isValidPhone(phone) { return /^\+?[0-9]{8,15}$/.test(phone); }
+
   var form = document.getElementById("waitlistForm");
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var nameInput = document.getElementById("waitlistName");
       var emailInput = document.getElementById("waitlistEmail");
+      var phoneInput = document.getElementById("waitlistPhone");
       var honeypot = document.getElementById("waitlistCompany");
       var submitBtn = form.querySelector("button[type=submit]");
       var errorEl = document.getElementById("waitlistError");
       if (errorEl) errorEl.hidden = true;
+
+      var phone = phoneInput ? normalizePhone(phoneInput.value) : "";
+      if (phone && !isValidPhone(phone)) {
+        if (errorEl) {
+          errorEl.textContent = lang === "ar"
+            ? "رقم الواتساب غير صحيح. اكتبه مع رمز الدولة، مثل ‎+963 9xx xxx xxx"
+            : "That WhatsApp number doesn't look right. Include the country code, e.g. +963 9xx xxx xxx.";
+          errorEl.hidden = false;
+        }
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
 
       if (!waitlistApiUrl) {
         // Never show a fake success when storage is not configured.
@@ -305,7 +329,7 @@
         headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", Accept: "application/json" },
         body: new URLSearchParams({
           email: emailInput.value.trim(), full_name: nameInput ? nameInput.value.trim() : "",
-          locale: lang, company: honeypot ? honeypot.value : ""
+          phone: phone, locale: lang, company: honeypot ? honeypot.value : ""
         }).toString()
       })
         .then(function (r) {

@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/style.css?v=waitlist-phone-20260923">
 <link rel="preload" as="image" href="../assets/logo/icon-only.webp">
 
 <script type="application/ld+json">
@@ -382,6 +382,8 @@
           <input type="text" id="waitlistName" required placeholder="اسمك الكامل" autocomplete="name">
           <label class="sr-only" for="waitlistEmail">البريد الإلكتروني</label>
           <input type="email" id="waitlistEmail" required placeholder="you@example.com" autocomplete="email">
+          <label class="sr-only" for="waitlistPhone">رقم واتساب (اختياري)</label>
+          <input type="tel" id="waitlistPhone" class="waitlist-phone" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="24" placeholder="رقم واتساب (اختياري) — مع رمز الدولة">
           <span class="sr-only" aria-hidden="true">
             <label for="waitlistCompany">اتركه فارغًا</label>
             <input type="text" id="waitlistCompany" tabindex="-1" autocomplete="off">
@@ -390,7 +392,7 @@
         </form>
         <div class="waitlist-success" id="waitlistSuccess" role="status" aria-live="polite">✓ تم! سنراسلك قريبًا.</div>
         <p class="waitlist-error" id="waitlistError" hidden></p>
-        <p class="waitlist-note">بريدك يُحفظ في قائمة انتظار خاصة يديرها فريق برّاق، ليُستخدم فقط لإعلامك بإطلاق التجربة الأولى. راجع <a href="privacy/">سياسة الخصوصية</a>.</p>
+        <p class="waitlist-note">بريدك (ورقم واتساب إن أضفته) يُحفظان في قائمة انتظار خاصة يديرها فريق برّاق، ليُستخدما فقط لإعلامك بإطلاق التجربة الأولى. راجع <a href="privacy/">سياسة الخصوصية</a>.</p>
       </div>
     </div>
   </section>
@@ -421,8 +423,8 @@ window.BARAQ_QUIZ_DATA = {
   kholasa: { name: 'خُلاصة', desc: 'تريد الجوهر فقط، بلا حشو — التلخيص والبطاقات السريعة هي طريقتك — خُلاصة هي أنت.', img: '../assets/characters/kholasa/full.webp' }
 };
 </script>
-<script src="../js/config.js?v=google-sheets-20260906"></script>
-<script src="../js/main.js?v=google-sheets-20260906"></script>
+<script src="../js/config.js?v=waitlist-phone-20260923"></script>
+<script src="../js/main.js?v=waitlist-phone-20260923"></script>
 </body>
 </html>
 

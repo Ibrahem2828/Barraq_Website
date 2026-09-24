@@ -349,6 +349,11 @@ html[dir="rtl"] .steps::before { background: repeating-linear-gradient(to left, 
 }
 .waitlist-form input:focus { border-color: var(--accent-solid); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-solid) 18%, transparent); outline: none; }
 .waitlist-form .btn { grid-column: 1 / -1; width: 100%; min-width: 0; }
+.waitlist-form .waitlist-phone { grid-column: 1 / -1; }
+/* dir="ltr" keeps typed digits and "+963" in order; the Arabic placeholder
+   still needs RTL shaping and alignment to match the inputs beside it. */
+html[dir="rtl"] .waitlist-form .waitlist-phone { text-align: right; }
+html[dir="rtl"] .waitlist-form .waitlist-phone:placeholder-shown { direction: rtl; }
 @media (max-width: 560px) { .waitlist-form { grid-template-columns: 1fr; } }
 .waitlist-note { margin-top: 14px; font-size: .78rem; color: var(--ink-faint); }
 .waitlist-note a { color: var(--accent); text-decoration: underline; }

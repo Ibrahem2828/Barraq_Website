@@ -5,7 +5,10 @@
  *   SPREADSHEET_ID = the ID from the Google Sheet URL
  *   SHEET_NAME     = Waitlist
  */
-const HEADERS = ["id", "full_name", "email", "locale", "source", "joined_at"];
+// "whatsapp" is appended LAST on purpose: existing sheets keep their columns
+// A-F untouched, and the duplicate check below still reads email from column C.
+const HEADERS = ["id", "full_name", "email", "locale", "source", "joined_at", "whatsapp"];
+const WHATSAPP_COLUMN = 7;
 
 function doGet(event) {
   try {
@@ -32,6 +35,14 @@ function doPost(event) {
     if (fullName.length < 2 || fullName.length > 100 || !isValidEmail(email)) {
       return json({ ok: false, error: "Please provide a valid name and email address." });
     }
+    // Optional: older cached copies of the site's script never send it.
+    const phone = normalizePhone(payload.phone);
+    if (phone && !isValidPhone(phone)) {
+      return json({ ok: false, error: "Please provide a valid WhatsApp number." });
+    }
+    // The leading apostrophe stores the number as text; otherwise Sheets
+    // parses "+963..." as a number and drops the "+" (or goes scientific).
+    const phoneCell = phone ? "'" + phone : "";
 
     const lock = LockService.getScriptLock();
     lock.waitLock(5000);
@@ -41,9 +52,18 @@ function doPost(event) {
       const emails = lastRow > 1
         ? sheet.getRange(2, 3, lastRow - 1, 1).getDisplayValues().flat().map((value) => value.trim().toLowerCase())
         : [];
-      if (emails.includes(email)) return json({ ok: true, created: false, count: emails.length });
+      const existingIndex = emails.indexOf(email);
+      if (existingIndex !== -1) {
+        // Someone already on the list can add a number later (e.g. after
+        // scanning the QR code at an event). Never overwrite one that exists.
+        if (phone) {
+          const cell = sheet.getRange(existingIndex + 2, WHATSAPP_COLUMN);
+          if (!cell.getDisplayValue().trim()) cell.setValue(phoneCell);
+        }
+        return json({ ok: true, created: false, count: emails.length });
+      }
 
-      sheet.appendRow([Utilities.getUuid(), fullName, email, locale, "website", new Date()]);
+      sheet.appendRow([Utilities.getUuid(), fullName, email, locale, "website", new Date(), phoneCell]);
       return json({ ok: true, created: true, count: emails.length + 1 });
     } finally {
       lock.releaseLock();
@@ -67,12 +87,31 @@ function getSheet() {
 
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName);
   if (!sheet) throw new Error("The configured sheet was not found.");
-  if (sheet.getLastRow() === 0) sheet.appendRow(HEADERS);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HEADERS);
+  } else if (sheet.getRange(1, 1).getDisplayValue() === "id" && !sheet.getRange(1, WHATSAPP_COLUMN).getDisplayValue()) {
+    // Sheets created before the WhatsApp field: label the new column once.
+    sheet.getRange(1, WHATSAPP_COLUMN).setValue("whatsapp");
+  }
   return sheet;
 }
 
 function isValidEmail(email) {
   return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Must stay in sync with normalizePhone() in js/main.js and server.js.
+function normalizePhone(value) {
+  let cleaned = String(value || "")
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0))
+    .replace(/[\s\-().‎‏‪-‮]/g, "");
+  if (cleaned.startsWith("00")) cleaned = "+" + cleaned.slice(2);
+  return cleaned;
+}
+
+function isValidPhone(phone) {
+  return /^\+?[0-9]{8,15}$/.test(phone);
 }
 
 function json(payload) {
