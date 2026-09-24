@@ -15,6 +15,8 @@ const host = process.env.HOST || "127.0.0.1";
 const maximumBodyBytes = 16 * 1024;
 const adminUsername = process.env.WAITLIST_ADMIN_USERNAME || "";
 const adminPassword = process.env.WAITLIST_ADMIN_PASSWORD || "";
+const linksTemplateFile = path.join(rootDirectory, "links", "index.html");
+const linksPlaceholder = "<!--BARAQ_LINKS-->";
 
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -245,6 +247,72 @@ async function handleWaitlist(request, response, pathname) {
   return true;
 }
 
+// ---------- /links: QR-code landing page ----------
+// Every URL comes from the environment so the team can change a handle
+// without a code change. A link with no value is simply not rendered.
+const linkIcons = {
+  app: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 1.9 1.7.7-1.7.7L19 20l-.8-1.9-1.7-.7 1.7-.7z"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.6 21v-7.2h2.4l.4-2.9h-2.8V9.1c0-.8.3-1.4 1.4-1.4h1.5V5.1c-.3 0-1.2-.1-2.2-.1-2.2 0-3.6 1.3-3.6 3.8v2.1H8.3v2.9h2.4V21z"/></svg>',
+  telegram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.7 4.1 2.9 11c-1.2.5-1.2 1.2-.2 1.5l4.6 1.4 1.8 5.4c.2.6.4.8.9.8.4 0 .6-.2.9-.4l2.2-2.1 4.6 3.4c.8.5 1.4.2 1.6-.8l3-14.1c.3-1.2-.4-1.8-1.6-1.3zM9.6 14.2l8.2-7.4c.4-.3-.1-.5-.6-.2l-10.1 6.4 4.4 1.4-.4 3.7z"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4v11H3zM9.5 9.75h3.8v1.6c.6-1 1.9-1.9 3.8-1.9 3.4 0 4.4 2.1 4.4 5.2v6.1h-4v-5.4c0-1.4-.3-2.6-1.8-2.6-1.6 0-2.2 1.1-2.2 2.6v5.4h-4z"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>'
+};
+
+const linkSpecs = [
+  { variant: "app", env: "BARAQ_LINK_WEB_APP_URL", fallback: "https://web.baraqapp.com", icon: "app", ar: "افتح تطبيق برّاق", en: "Open the Barraq web app", external: false },
+  { variant: "website", env: "BARAQ_LINK_WEBSITE_URL", fallback: "https://baraqapp.com", icon: "globe", ar: "الموقع الرسمي", en: "Official website", external: false },
+  { variant: "instagram", env: "BARAQ_LINK_INSTAGRAM_URL", icon: "instagram", ar: "إنستغرام", en: "Instagram", external: true },
+  { variant: "facebook", env: "BARAQ_LINK_FACEBOOK_URL", icon: "facebook", ar: "فيسبوك", en: "Facebook", external: true },
+  { variant: "telegram", env: "BARAQ_LINK_TELEGRAM_URL", icon: "telegram", ar: "قناة تيليجرام", en: "Telegram channel", external: true },
+  { variant: "linkedin", env: "BARAQ_LINK_LINKEDIN_URL", icon: "linkedin", ar: "لينكدإن", en: "LinkedIn", external: true },
+  { variant: "email", env: "BARAQ_LINK_EMAIL", icon: "mail", ar: "راسلنا عبر البريد", en: "Email us", email: true }
+];
+
+function resolveLinkHref(spec) {
+  const raw = String(process.env[spec.env] || spec.fallback || "").trim();
+  if (!raw) return "";
+  if (spec.email) {
+    const address = raw.replace(/^mailto:/i, "");
+    if (isValidEmail(address)) return `mailto:${address}`;
+  } else {
+    try {
+      // https only: a typo in the environment must never become a
+      // javascript: or data: link on a page people reach by scanning a QR.
+      if (new URL(raw).protocol === "https:") return raw;
+    } catch { /* reported below */ }
+  }
+  console.warn(`Ignoring ${spec.env}: expected ${spec.email ? "an email address" : "an https:// URL"}.`);
+  return "";
+}
+
+const siteLinks = linkSpecs.map((spec) => ({ ...spec, href: resolveLinkHref(spec) })).filter((link) => link.href);
+
+function renderLinkButtons() {
+  return siteLinks.map((link, index) => {
+    const target = link.external ? ' target="_blank" rel="noopener noreferrer"' : "";
+    return `<a class="link-btn link-btn--${link.variant}" href="${escapeHtml(link.href)}"${target} style="--i:${index}">`
+      + `<span class="link-icon" aria-hidden="true">${linkIcons[link.icon]}</span>`
+      + `<span class="link-text"><span class="link-ar">${escapeHtml(link.ar)}</span><span class="link-en" lang="en" dir="ltr">${escapeHtml(link.en)}</span></span>`
+      + '<span class="link-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>'
+      + "</a>";
+  }).join("\n      ");
+}
+
+async function handleLinks(request, response, pathname) {
+  if (!["/links", "/links/", "/links/index.html"].includes(pathname)) return false;
+  if (request.method !== "GET" && request.method !== "HEAD") { sendJson(response, 405, { error: "Method not allowed" }); return true; }
+  const template = await readFile(linksTemplateFile, "utf8");
+  const page = template.replace(linksPlaceholder, renderLinkButtons());
+  if (request.method === "HEAD") {
+    response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff" }).end();
+  } else {
+    sendText(response, 200, page, "text/html; charset=utf-8", { "Cache-Control": "no-cache", "Referrer-Policy": "strict-origin-when-cross-origin" });
+  }
+  return true;
+}
+
 function isPrivatePath(pathname) {
   const firstSegment = pathname.split("/").filter(Boolean)[0] || "";
   return firstSegment === "data"
@@ -307,6 +375,7 @@ const server = createServer(async (request, response) => {
     const pathname = decodeURIComponent(url.pathname);
     if (await handleWaitlist(request, response, pathname)) return;
     if (await handleAdmin(request, response, pathname)) return;
+    if (await handleLinks(request, response, pathname)) return;
     await serveStatic(request, response, pathname);
   } catch {
     sendJson(response, 500, { error: "Internal server error" });
@@ -316,5 +385,6 @@ const server = createServer(async (request, response) => {
 server.listen(port, host, () => {
   console.log(`Barraq is running at http://${host}:${port}`);
   console.log(`Waitlist records: ${waitlistFile}`);
+  console.log(`/links buttons: ${siteLinks.map((link) => link.variant).join(", ") || "none"}`);
 });
 
