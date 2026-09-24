@@ -18,6 +18,48 @@ const adminPassword = process.env.WAITLIST_ADMIN_PASSWORD || "";
 const linksTemplateFile = path.join(rootDirectory, "links", "index.html");
 const linksPlaceholder = "<!--BARAQ_LINKS-->";
 
+// The production waitlist lives in a Google Sheet behind Apps Script. When
+// this is set, /api/v1/waitlist/sheet/ relays the browser's count/join calls
+// to it from this server, so visitors whose network or blocker stops
+// script.google.com can still sign up. js/main.js falls back to calling Apps
+// Script directly when the relay is absent, so leaving it unset changes nothing.
+const waitlistSheetUrl = (() => {
+  const raw = (process.env.BARAQ_WAITLIST_SHEET_URL || "").trim();
+  if (!raw) return "";
+  try {
+    const url = new URL(raw);
+    if (url.protocol === "https:" && url.hostname === "script.google.com") return url.toString();
+  } catch {}
+  console.warn("Ignoring BARAQ_WAITLIST_SHEET_URL: must be an https://script.google.com/ URL");
+  return "";
+})();
+const sheetTimeoutMilliseconds = 15000;
+const sheetCountCacheMilliseconds = 30000;
+let sheetCountCache = { at: 0, body: "" };
+
+// Every HTML page. Inline scripts/style attributes exist in the pages, so
+// 'unsafe-inline' stays (same stance as the web app); the rest pins every
+// origin the site actually uses: Google Fonts, and Apps Script (which
+// answers through a redirect to script.googleusercontent.com).
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data:",
+  "connect-src 'self' https://script.google.com https://script.googleusercontent.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'"
+].join("; ");
+
+function pageHeaders(contentType) {
+  return String(contentType).startsWith("text/html")
+    ? { "Content-Security-Policy": contentSecurityPolicy }
+    : {};
+}
+
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
   [".css", "text/css; charset=utf-8"],
@@ -65,7 +107,7 @@ function sendJson(response, statusCode, payload) {
 }
 
 function sendText(response, statusCode, body, contentType, headers = {}) {
-  response.writeHead(statusCode, { "Content-Type": contentType, "Content-Length": Buffer.byteLength(body), "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", ...headers });
+  response.writeHead(statusCode, { "Content-Type": contentType, "Content-Length": Buffer.byteLength(body), "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", ...pageHeaders(contentType), ...headers });
   response.end(body);
 }
 
@@ -110,7 +152,7 @@ async function handleAdmin(request, response, pathname) {
     return true;
   }
   const page = renderAdminPage();
-  if (request.method === "HEAD") response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" }).end();
+  if (request.method === "HEAD") response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", ...pageHeaders("text/html") }).end();
   else sendText(response, 200, page, "text/html; charset=utf-8");
   return true;
 }
@@ -159,8 +201,23 @@ function isValidPhone(phone) {
   return /^\+?[0-9]{8,15}$/.test(phone);
 }
 
+function isPrivateAddress(address) {
+  const value = String(address || "").replace(/^::ffff:/, "");
+  return /^(10\.|127\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(value)
+    || value === "::1" || /^f[cd]/i.test(value);
+}
+
+// Behind Caddy every request arrives from Caddy's address, so limiting by the
+// socket alone made all visitors share one bucket. X-Forwarded-For is only
+// trusted when the peer is on the private network (i.e. the proxy).
+function clientAddress(request) {
+  const peer = request.socket.remoteAddress || "unknown";
+  const forwarded = String(request.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  return forwarded && isPrivateAddress(peer) ? forwarded : peer;
+}
+
 function isRateLimited(request) {
-  const address = request.socket.remoteAddress || "unknown";
+  const address = clientAddress(request);
   const now = Date.now();
   const windowMilliseconds = 10 * 60 * 1000;
   const current = rateLimits.get(address);
@@ -172,6 +229,80 @@ function isRateLimited(request) {
 
   current.count += 1;
   return current.count > 8;
+}
+
+async function readRawBody(request) {
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of request) {
+    size += chunk.length;
+    if (size > maximumBodyBytes) throw new Error("body too large");
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+function sendSheetJson(response, statusCode, body) {
+  response.writeHead(statusCode, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Content-Length": Buffer.byteLength(body),
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff"
+  });
+  response.end(body);
+}
+
+async function callSheet(action, init = {}) {
+  const url = new URL(waitlistSheetUrl);
+  url.searchParams.set("action", action);
+  // Apps Script answers a POST with a 302 to script.googleusercontent.com,
+  // which must be fetched with GET -- exactly what fetch's redirect does.
+  const upstream = await fetch(url, {
+    ...init,
+    redirect: "follow",
+    headers: { Accept: "application/json", ...(init.headers || {}) },
+    signal: AbortSignal.timeout(sheetTimeoutMilliseconds)
+  });
+  const body = await upstream.text();
+  JSON.parse(body); // relay only well-formed JSON; anything else is a 502
+  return body;
+}
+
+async function handleSheetRelay(request, response, pathname, searchParams) {
+  if (pathname !== "/api/v1/waitlist/sheet/" || !waitlistSheetUrl) return false;
+  const action = searchParams.get("action");
+  try {
+    if (request.method === "GET" && action === "count") {
+      if (!sheetCountCache.body || Date.now() - sheetCountCache.at > sheetCountCacheMilliseconds) {
+        // Read-only, so one retry: Google's googleusercontent redirect
+        // intermittently answers an HTML 404 for a perfectly good script.
+        const body = await callSheet("count").catch(() => callSheet("count"));
+        sheetCountCache = { at: Date.now(), body };
+      }
+      sendSheetJson(response, 200, sheetCountCache.body);
+      return true;
+    }
+    if (request.method === "POST" && action === "join") {
+      if (isRateLimited(request)) {
+        sendSheetJson(response, 429, JSON.stringify({ ok: false, error: "rate_limited" }));
+        return true;
+      }
+      const form = await readRawBody(request);
+      const body = await callSheet("join", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body: form
+      });
+      sheetCountCache = { at: 0, body: "" };
+      sendSheetJson(response, 200, body);
+      return true;
+    }
+    sendSheetJson(response, 405, JSON.stringify({ ok: false, error: "method_not_allowed" }));
+    return true;
+  } catch {
+    sendSheetJson(response, 502, JSON.stringify({ ok: false, error: "sheet_unavailable" }));
+    return true;
+  }
 }
 
 async function handleWaitlist(request, response, pathname) {
@@ -306,7 +437,7 @@ async function handleLinks(request, response, pathname) {
   const template = await readFile(linksTemplateFile, "utf8");
   const page = template.replace(linksPlaceholder, renderLinkButtons());
   if (request.method === "HEAD") {
-    response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff" }).end();
+    response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff", ...pageHeaders("text/html") }).end();
   } else {
     sendText(response, 200, page, "text/html; charset=utf-8", { "Cache-Control": "no-cache", "Referrer-Policy": "strict-origin-when-cross-origin" });
   }
@@ -316,6 +447,8 @@ async function handleLinks(request, response, pathname) {
 function isPrivatePath(pathname) {
   const firstSegment = pathname.split("/").filter(Boolean)[0] || "";
   return firstSegment === "data"
+    || firstSegment === "apps-script"
+    || firstSegment === "tests"
     || firstSegment.startsWith(".")
     || ["server.js", "package.json", "package-lock.json", "README.md"].includes(firstSegment);
 }
@@ -358,8 +491,10 @@ async function streamFile(request, response, filePath, statusCode) {
   const fileStats = await stat(filePath);
   const extension = path.extname(filePath).toLowerCase();
   const cacheControl = extension === ".html" ? "no-cache" : "public, max-age=604800";
+  const contentType = contentTypes.get(extension) || "application/octet-stream";
   response.writeHead(statusCode, {
-    "Content-Type": contentTypes.get(extension) || "application/octet-stream",
+    ...pageHeaders(contentType),
+    "Content-Type": contentType,
     "Content-Length": fileStats.size,
     "Cache-Control": cacheControl,
     "X-Content-Type-Options": "nosniff",
@@ -373,6 +508,7 @@ const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
     const pathname = decodeURIComponent(url.pathname);
+    if (await handleSheetRelay(request, response, pathname, url.searchParams)) return;
     if (await handleWaitlist(request, response, pathname)) return;
     if (await handleAdmin(request, response, pathname)) return;
     if (await handleLinks(request, response, pathname)) return;
@@ -386,5 +522,6 @@ server.listen(port, host, () => {
   console.log(`Barraq is running at http://${host}:${port}`);
   console.log(`Waitlist records: ${waitlistFile}`);
   console.log(`/links buttons: ${siteLinks.map((link) => link.variant).join(", ") || "none"}`);
+  console.log(`Waitlist sheet relay: ${waitlistSheetUrl ? "on" : "off"}`);
 });
 

@@ -269,8 +269,24 @@
   function apiUrl(action) {
     return waitlistApiUrl + (waitlistApiUrl.indexOf("?") === -1 ? "?" : "&") + "action=" + encodeURIComponent(action);
   }
+  // Same-origin relay first (server.js forwards to the same Apps Script), so a
+  // network or blocker that stops script.google.com cannot lose a sign-up.
+  // Where the relay is not deployed (404/405) or unreachable, call Apps
+  // Script directly exactly as before. A join is never retried after a relay
+  // 5xx: the sheet may already have it, and a second POST would only turn
+  // "you're in" into "already registered".
+  function waitlistRequest(action, init, retryOnServerError) {
+    function direct() { return fetch(apiUrl(action), init); }
+    return fetch("/api/v1/waitlist/sheet/?action=" + encodeURIComponent(action), init).then(
+      function (r) {
+        if (r.status === 404 || r.status === 405 || (retryOnServerError && r.status >= 500)) return direct();
+        return r;
+      },
+      direct
+    );
+  }
   if (countEl && waitlistApiUrl) {
-    fetch(apiUrl("count"), { headers: { Accept: "application/json" } })
+    waitlistRequest("count", { headers: { Accept: "application/json" } }, true)
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
       .then(function (data) { if (!data.ok) return Promise.reject(data); renderCount(Number(data.count) || 0); })
       .catch(function () { countEl.hidden = true; });
@@ -324,14 +340,14 @@
       }
 
       if (submitBtn) submitBtn.disabled = true;
-      fetch(apiUrl("join"), {
+      waitlistRequest("join", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", Accept: "application/json" },
         body: new URLSearchParams({
           email: emailInput.value.trim(), full_name: nameInput ? nameInput.value.trim() : "",
           phone: phone, locale: lang, company: honeypot ? honeypot.value : ""
         }).toString()
-      })
+      }, false)
         .then(function (r) {
           if (r.ok) return r.json().then(function (data) { return data.ok ? data : Promise.reject(data); });
           return r.json().then(function (body) { return Promise.reject(body); }).catch(function () { return Promise.reject({}); });

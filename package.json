@@ -6,7 +6,8 @@
   "description": "Barraq bilingual marketing site and local waitlist service",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check js/main.js && node --check js/config.js"
+    "check": "node --check server.js && node --check js/main.js && node --check js/config.js",
+    "test": "node --test tests/server.test.mjs"
   },
   "engines": {
     "node": ">=18"
