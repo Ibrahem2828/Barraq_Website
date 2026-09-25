@@ -31,9 +31,12 @@
 }
 
 .links-head { text-align: center; }
+/* A square file for a square slot: icon-only.webp is 300x152, and forcing it
+   into 104x104 squeezed the mark into a tall shape. */
 .links-logo {
   width: 104px;
   height: 104px;
+  object-fit: contain;
   margin: 0 auto 14px;
   filter: drop-shadow(0 14px 28px color-mix(in srgb, var(--accent-solid) 35%, transparent));
   animation: links-float 6s ease-in-out infinite;

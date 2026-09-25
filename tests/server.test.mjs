@@ -69,6 +69,16 @@ describe("pages", () => {
     assert.deepEqual([...bytes.slice(0, 4)], [0, 0, 1, 0]); // ICO magic
   });
 
+  it("gives /links a square logo file for its square slot", async () => {
+    const html = await (await fetch(`${site.base}/links`)).text();
+    assert.match(html, /class="links-logo" src="\/assets\/logo\/icon-square\.webp"/);
+    const bytes = new Uint8Array(await (await fetch(`${site.base}/assets/logo/icon-square.webp`)).arrayBuffer());
+    // WebP VP8X canvas size: width-1 / height-1 as 24-bit little endian at 24 / 27.
+    const width = 1 + (bytes[24] | (bytes[25] << 8) | (bytes[26] << 16));
+    const height = 1 + (bytes[27] | (bytes[28] << 8) | (bytes[29] << 16));
+    assert.equal(width, height);
+  });
+
   it("does not publish the Apps Script source or the tests", async () => {
     assert.equal((await fetch(`${site.base}/apps-script/Code.gs`)).status, 404);
     assert.equal((await fetch(`${site.base}/tests/server.test.mjs`)).status, 404);
