@@ -102,15 +102,15 @@
 .link-arrow svg { width: 100%; height: 100%; }
 .link-btn:hover .link-arrow { transform: translateX(-3px); }
 
-/* Primary call to action: the web app. */
-.link-btn--app {
+/* Primary calls to action: the web app and the Android download. */
+.link-btn--app, .link-btn--download {
   --brand: var(--accent-contrast);
   background: linear-gradient(135deg, var(--accent-solid), color-mix(in srgb, var(--accent-solid) 70%, #FFD98A));
   border-color: transparent;
 }
-.link-btn--app .link-icon { background: color-mix(in srgb, var(--accent-contrast) 14%, transparent); color: var(--accent-contrast); }
-.link-btn--app .link-ar, .link-btn--app .link-arrow { color: var(--accent-contrast); }
-.link-btn--app .link-en { color: color-mix(in srgb, var(--accent-contrast) 70%, transparent); }
+.link-btn--app .link-icon, .link-btn--download .link-icon { background: color-mix(in srgb, var(--accent-contrast) 14%, transparent); color: var(--accent-contrast); }
+.link-btn--app .link-ar, .link-btn--app .link-arrow, .link-btn--download .link-ar, .link-btn--download .link-arrow { color: var(--accent-contrast); }
+.link-btn--app .link-en, .link-btn--download .link-en { color: color-mix(in srgb, var(--accent-contrast) 70%, transparent); }
 
 .link-btn--website { --brand: var(--c-fahes); }
 .link-btn--instagram { --brand: #D62976; }

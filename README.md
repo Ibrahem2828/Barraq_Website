@@ -176,3 +176,25 @@ character's two poses — still far below the ~2.3MB original single-file
 artifact version (which embedded every image as base64, at lower quality).
 Google Fonts is the only external dependency (two font families,
 `font-display: swap`, preconnected).
+
+## Android app downloads (`/download`)
+
+The Android app is distributed from this site as a signed universal APK.
+
+| URL | What it is |
+|---|---|
+| `/ar/download/`, `/en/download/` | Download page, rendered per request from the manifest below |
+| `/download` | Redirect to the page in the visitor's language |
+| `/download/android` | Stable link (the QR code points here) that redirects to the newest APK |
+| `/downloads/android/baraq-<x.y.z>.apk` | The file: `application/vnd.android.package-archive`, `attachment`, byte ranges so a broken download resumes |
+| `/downloads/android/latest.json` | Version, size, SHA-256 of the file and of the signing certificate; readable from the app's origin (`https://localhost`) for an update check |
+
+Files are **not** in the image. They live in `BARAQ_DOWNLOADS_DIR` (default `./downloads`; in production a read-only bind mount) under `android/`. The server validates the manifest on every request: the file name must be `baraq-<x.y.z>.apk` and equal `versionName`, the application id must be `com.baraq.app`, both fingerprints must be 64 hex characters, and the size on disk must equal `sizeBytes`. If anything is off the page shows "being prepared" and there is no download link, so a half-copied upload can never be offered.
+
+### Publishing a new version (no redeploy)
+
+1. In the app repo, bump `versionCode` and `versionName` in `android/app/build.gradle`, then `npm run android:release`. It builds, signs with the release key, refuses a debug-signed or mismatched APK, and writes `dist/android/baraq-<x.y.z>.apk`, `.apk.sha256` and `latest.json`.
+2. Copy the `.apk` and `.apk.sha256` to the server's downloads folder first, `latest.json` **last** (the page switches the moment the manifest is valid).
+3. Keep the previous APK in the folder so the old link keeps working.
+
+`/links` gets a download button too; set `BARAQ_LINK_DOWNLOAD_URL` to change its target (default `https://baraqapp.com/download/`).

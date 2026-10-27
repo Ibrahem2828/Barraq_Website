@@ -69,6 +69,7 @@ const contentTypes = new Map([
   [".txt", "text/plain; charset=utf-8"],
   [".png", "image/png"],
   [".webp", "image/webp"],
+  [".svg", "image/svg+xml"],
   [".ico", "image/x-icon"]
 ]);
 
@@ -383,6 +384,7 @@ async function handleWaitlist(request, response, pathname) {
 // without a code change. A link with no value is simply not rendered.
 const linkIcons = {
   app: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 1.9 1.7.7-1.7.7L19 20l-.8-1.9-1.7-.7 1.7-.7z"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M5 18v1.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V18"/></svg>',
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/></svg>',
   instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
   facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.6 21v-7.2h2.4l.4-2.9h-2.8V9.1c0-.8.3-1.4 1.4-1.4h1.5V5.1c-.3 0-1.2-.1-2.2-.1-2.2 0-3.6 1.3-3.6 3.8v2.1H8.3v2.9h2.4V21z"/></svg>',
@@ -393,6 +395,7 @@ const linkIcons = {
 
 const linkSpecs = [
   { variant: "app", env: "BARAQ_LINK_WEB_APP_URL", fallback: "https://web.baraqapp.com", icon: "app", ar: "افتح تطبيق برّاق", en: "Open the Barraq web app", external: false },
+  { variant: "download", env: "BARAQ_LINK_DOWNLOAD_URL", fallback: "https://baraqapp.com/download/", icon: "download", ar: "حمّل تطبيق أندرويد", en: "Download the Android app", external: false },
   { variant: "website", env: "BARAQ_LINK_WEBSITE_URL", fallback: "https://baraqapp.com", icon: "globe", ar: "الموقع الرسمي", en: "Official website", external: false },
   { variant: "instagram", env: "BARAQ_LINK_INSTAGRAM_URL", icon: "instagram", ar: "إنستغرام", en: "Instagram", external: true },
   { variant: "facebook", env: "BARAQ_LINK_FACEBOOK_URL", icon: "facebook", ar: "فيسبوك", en: "Facebook", external: true },
@@ -444,9 +447,224 @@ async function handleLinks(request, response, pathname) {
   return true;
 }
 
+// ---------- Android app downloads ----------
+// The app is distributed as a signed APK from this site (not from a store).
+// Files live outside the image, in BARAQ_DOWNLOADS_DIR/android/, so shipping a
+// new version is "copy two files", never a redeploy:
+//   baraq-<x.y.z>.apk   the signed universal APK
+//   latest.json         written by scripts/android-release.mjs in the app repo
+// Nothing here trusts the manifest blindly: every field is validated, the file
+// name must be the versioned pattern, and the size on disk must match, so a
+// half-copied upload never produces a download button.
+const downloadsDirectory = path.resolve(process.env.BARAQ_DOWNLOADS_DIR || path.join(rootDirectory, "downloads"));
+const androidDirectory = path.join(downloadsDirectory, "android");
+const apkNamePattern = /^baraq-(\d+)\.(\d+)\.(\d+)\.apk$/;
+const downloadPlaceholder = "<!--BARAQ_DOWNLOAD-->";
+const downloadLocales = new Set(["ar", "en"]);
+const apkContentType = "application/vnd.android.package-archive";
+
+async function loadAndroidRelease() {
+  try {
+    const raw = JSON.parse(await readFile(path.join(androidDirectory, "latest.json"), "utf8"));
+    const name = String(raw.file || "");
+    const match = apkNamePattern.exec(name);
+    const hex64 = /^[0-9a-f]{64}$/;
+    const releasedAt = new Date(raw.releasedAt);
+    if (!match
+      || raw.versionName !== `${match[1]}.${match[2]}.${match[3]}`
+      || raw.applicationId !== "com.baraq.app"
+      || !Number.isInteger(raw.versionCode) || raw.versionCode < 1
+      || !Number.isInteger(raw.sizeBytes) || raw.sizeBytes < 1
+      || !hex64.test(String(raw.sha256)) || !hex64.test(String(raw.signingCertSha256))
+      || !/^\d+(\.\d+)*$/.test(String(raw.minAndroid))
+      || Number.isNaN(releasedAt.getTime())) return null;
+    const onDisk = await stat(path.join(androidDirectory, name));
+    if (!onDisk.isFile() || onDisk.size !== raw.sizeBytes) return null;
+    return {
+      file: name, versionName: raw.versionName, versionCode: raw.versionCode, sizeBytes: raw.sizeBytes,
+      sha256: raw.sha256, signingCertSha256: raw.signingCertSha256, minAndroid: String(raw.minAndroid), releasedAt
+    };
+  } catch { return null; }
+}
+
+const formatFingerprint = (hex) => hex.toUpperCase().match(/.{2}/g).join(":");
+
+const downloadText = {
+  ar: {
+    button: "تنزيل برّاق لأندرويد", version: "الإصدار", size: "الحجم", date: "تاريخ الإصدار", requires: "يتطلب",
+    requiresValue: (v) => `أندرويد ${v} أو أحدث`, checksum: "بصمة الملف (SHA-256)", cert: "بصمة شهادة التوقيع (SHA-256)",
+    copy: "نسخ", copied: "تم النسخ", mb: "ميغابايت", qrTitle: "افتحه من هاتفك", qrBody: "امسح الرمز بكاميرا هاتفك لتنزيل التطبيق مباشرة.",
+    soonTitle: "نسخة أندرويد قيد الإعداد", soonBody: "لم يُنشر ملف التطبيق بعد. انضم إلى قائمة الانتظار وسنخبرك فور توفره.", soonCta: "انضم لقائمة الانتظار",
+    locale: "ar-EG-u-nu-latn"
+  },
+  en: {
+    button: "Download Barraq for Android", version: "Version", size: "Size", date: "Released", requires: "Requires",
+    requiresValue: (v) => `Android ${v} or newer`, checksum: "File fingerprint (SHA-256)", cert: "Signing certificate fingerprint (SHA-256)",
+    copy: "Copy", copied: "Copied", mb: "MB", qrTitle: "Open it on your phone", qrBody: "Scan the code with your phone's camera to download the app directly.",
+    soonTitle: "The Android app is being prepared", soonBody: "The app file has not been published yet. Join the waitlist and we will tell you as soon as it is available.", soonCta: "Join the waitlist",
+    locale: "en-GB"
+  }
+};
+
+function renderDownloadCard(locale, release) {
+  const t = downloadText[locale];
+  if (!release) {
+    return `<section class="dl-card dl-card--soon" aria-labelledby="dl-soon"><h2 id="dl-soon">${t.soonTitle}</h2><p>${t.soonBody}</p><a class="btn btn-primary" href="/${locale}/#waitlist">${t.soonCta}</a></section>`;
+  }
+  const size = (release.sizeBytes / 1048576).toFixed(1);
+  const date = release.releasedAt.toLocaleDateString(t.locale, { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+  const href = `/downloads/android/${release.file}`;
+  const ld = JSON.stringify({
+    "@context": "https://schema.org", "@type": "SoftwareApplication", name: "برّاق / Barraq",
+    operatingSystem: `Android ${release.minAndroid}+`, applicationCategory: "EducationalApplication",
+    softwareVersion: release.versionName, fileSize: `${size}MB`, downloadUrl: `https://baraqapp.com${href}`,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
+  }).replaceAll("<", "\\u003c");
+  return `<section class="dl-card" aria-label="${t.button}">
+    <div class="dl-main">
+      <a class="btn btn-primary dl-btn" href="${escapeHtml(href)}" download>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
+        <span>${t.button}</span>
+      </a>
+      <dl class="dl-facts">
+        <div><dt>${t.version}</dt><dd dir="ltr">${escapeHtml(release.versionName)}</dd></div>
+        <div><dt>${t.size}</dt><dd>${size} ${t.mb}</dd></div>
+        <div><dt>${t.date}</dt><dd>${escapeHtml(date)}</dd></div>
+        <div><dt>${t.requires}</dt><dd>${escapeHtml(t.requiresValue(release.minAndroid))}</dd></div>
+      </dl>
+      <div class="dl-hash">
+        <p class="dl-hash-label">${t.checksum}</p>
+        <div class="dl-hash-row"><code dir="ltr" id="dlSha">${release.sha256}</code><button type="button" class="dl-copy" data-copy="dlSha" data-copied="${t.copied}">${t.copy}</button></div>
+        <p class="dl-hash-label">${t.cert}</p>
+        <div class="dl-hash-row"><code dir="ltr" id="dlCert">${formatFingerprint(release.signingCertSha256)}</code><button type="button" class="dl-copy" data-copy="dlCert" data-copied="${t.copied}">${t.copy}</button></div>
+      </div>
+    </div>
+    <aside class="dl-qr" aria-label="${t.qrTitle}">
+      <img src="/assets/download/qr-android.svg" width="168" height="168" alt="QR">
+      <strong>${t.qrTitle}</strong>
+      <span>${t.qrBody}</span>
+    </aside>
+    <script type="application/ld+json">${ld}</script>
+  </section>`;
+}
+
+function sendRedirect(response, location, statusCode = 302) {
+  response.writeHead(statusCode, { Location: location, "Cache-Control": "no-cache", "Content-Length": 0 });
+  response.end();
+}
+
+// Single byte range, the only kind browsers and download managers send; it is
+// what lets a download on a flaky mobile connection resume instead of restart.
+function parseByteRange(header, size) {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(String(header || "").trim());
+  if (!match || (match[1] === "" && match[2] === "")) return null;
+  let start; let end;
+  if (match[1] === "") {
+    const suffix = Number(match[2]);
+    if (suffix === 0) return "unsatisfiable";
+    start = Math.max(size - suffix, 0); end = size - 1;
+  } else {
+    start = Number(match[1]); end = match[2] === "" ? size - 1 : Math.min(Number(match[2]), size - 1);
+  }
+  return start > end || start >= size ? "unsatisfiable" : { start, end };
+}
+
+async function sendDownloadFile(request, response, filePath, { contentType, fileName, etag, attachment }) {
+  const { size } = await stat(filePath);
+  const headers = {
+    "Content-Type": contentType,
+    "Accept-Ranges": "bytes",
+    "Cache-Control": "public, max-age=86400",
+    "X-Content-Type-Options": "nosniff",
+    ...(attachment ? { "Content-Disposition": `attachment; filename="${fileName}"` } : {}),
+    ...(etag ? { ETag: etag } : {})
+  };
+  const ifRange = request.headers["if-range"];
+  const range = ifRange && ifRange !== etag ? null : parseByteRange(request.headers.range, size);
+  if (range === "unsatisfiable") {
+    response.writeHead(416, { ...headers, "Content-Range": `bytes */${size}`, "Content-Length": 0 });
+    response.end();
+    return;
+  }
+  const partial = range !== null;
+  const { start, end } = partial ? range : { start: 0, end: size - 1 };
+  response.writeHead(partial ? 206 : 200, {
+    ...headers,
+    "Content-Length": end - start + 1,
+    ...(partial ? { "Content-Range": `bytes ${start}-${end}/${size}` } : {})
+  });
+  if (request.method === "HEAD") { response.end(); return; }
+  if (start === 0) console.log(JSON.stringify({ event: "android_download", file: fileName, partial }));
+  createReadStream(filePath, { start, end }).pipe(response);
+}
+
+async function handleDownloads(request, response, pathname) {
+  const isDownloadPage = ["/download", "/download/", "/download/android", "/ar/download", "/ar/download/", "/en/download", "/en/download/"].includes(pathname);
+  const isFile = pathname.startsWith("/downloads/android/");
+  if (!isDownloadPage && !isFile) return false;
+  if (request.method !== "GET" && request.method !== "HEAD") { sendJson(response, 405, { error: "Method not allowed" }); return true; }
+
+  if (pathname === "/download" || pathname === "/download/") {
+    const preferred = String(request.headers["accept-language"] || "").toLowerCase().startsWith("en") ? "en" : "ar";
+    sendRedirect(response, `/${preferred}/download/`);
+    return true;
+  }
+  if (pathname === "/ar/download" || pathname === "/en/download") { sendRedirect(response, `${pathname}/`, 301); return true; }
+
+  const release = await loadAndroidRelease();
+
+  if (pathname === "/download/android") {
+    if (!release) { await serveNotFound(request, response); return true; }
+    sendRedirect(response, `/downloads/android/${release.file}`);
+    return true;
+  }
+
+  if (isDownloadPage) {
+    const locale = pathname.slice(1, 3);
+    const template = await readFile(path.join(rootDirectory, locale, "download", "index.html"), "utf8");
+    const page = template.replace(downloadPlaceholder, renderDownloadCard(locale, release));
+    if (request.method === "HEAD") {
+      response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff", ...pageHeaders("text/html") }).end();
+    } else {
+      sendText(response, 200, page, "text/html; charset=utf-8", { "Cache-Control": "no-cache", "Referrer-Policy": "strict-origin-when-cross-origin" });
+    }
+    return true;
+  }
+
+  const name = pathname.slice("/downloads/android/".length);
+  if (name === "latest.json") {
+    if (!release) { await serveNotFound(request, response); return true; }
+    const body = JSON.stringify({
+      applicationId: "com.baraq.app", versionName: release.versionName, versionCode: release.versionCode, file: release.file,
+      url: `https://baraqapp.com/downloads/android/${release.file}`, sizeBytes: release.sizeBytes, sha256: release.sha256,
+      signingCertSha256: release.signingCertSha256, minAndroid: release.minAndroid, releasedAt: release.releasedAt.toISOString()
+    });
+    response.writeHead(200, {
+      "Content-Type": "application/json; charset=utf-8", "Content-Length": Buffer.byteLength(body), "Cache-Control": "no-cache",
+      "X-Content-Type-Options": "nosniff",
+      // The app (served from https://localhost inside its WebView) may check for updates.
+      "Access-Control-Allow-Origin": "https://localhost"
+    });
+    response.end(request.method === "HEAD" ? undefined : body);
+    return true;
+  }
+
+  const isChecksum = name.endsWith(".apk.sha256");
+  const apkName = isChecksum ? name.slice(0, -".sha256".length) : name;
+  // Only the versioned names, and only files that really exist: no traversal, no listing.
+  if (!apkNamePattern.test(apkName)) { await serveNotFound(request, response); return true; }
+  const filePath = path.join(androidDirectory, name);
+  try { if (!(await stat(filePath)).isFile()) throw new Error("not a file"); } catch { await serveNotFound(request, response); return true; }
+  await sendDownloadFile(request, response, filePath, isChecksum
+    ? { contentType: "text/plain; charset=utf-8", fileName: name, attachment: false }
+    : { contentType: apkContentType, fileName: name, attachment: true, etag: release && release.file === name ? `"${release.sha256}"` : undefined });
+  return true;
+}
+
 function isPrivatePath(pathname) {
   const firstSegment = pathname.split("/").filter(Boolean)[0] || "";
   return firstSegment === "data"
+    || firstSegment === "downloads"
     || firstSegment === "apps-script"
     || firstSegment === "tests"
     || firstSegment.startsWith(".")
@@ -512,6 +730,7 @@ const server = createServer(async (request, response) => {
     if (await handleWaitlist(request, response, pathname)) return;
     if (await handleAdmin(request, response, pathname)) return;
     if (await handleLinks(request, response, pathname)) return;
+    if (await handleDownloads(request, response, pathname)) return;
     await serveStatic(request, response, pathname);
   } catch {
     sendJson(response, 500, { error: "Internal server error" });
